@@ -1,0 +1,8 @@
+/* 개발 보드 모바일 보정 (공통 mobile.css 뒤에 로드) */
+@media (max-width:720px){
+  .tools .sel{flex:1 1 0}
+  .chip-t{height:44px}
+  .card{padding:12px 13px 13px}
+  .flow{padding:16px 14px}
+  .p-sum{display:grid;grid-template-columns:1fr 1fr;gap:12px 16px}
+}

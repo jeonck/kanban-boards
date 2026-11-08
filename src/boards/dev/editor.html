@@ -1,0 +1,29 @@
+<div class="scrim" id="scrim" hidden>
+  <form class="sheet" id="form" role="dialog" aria-modal="true" aria-labelledby="m-head" novalidate>
+    <h2 id="m-head">새 카드</h2>
+    <div class="fld"><label for="f-title">제목</label><input class="f" id="f-title" maxlength="120" autocomplete="off" placeholder="예: 검색 API 페이지네이션"></div>
+    <div class="two">
+      <div class="fld"><label for="f-col">단계</label><select class="f" id="f-col"></select></div>
+      <div class="fld"><label for="f-type">유형</label><select class="f" id="f-type"></select></div>
+    </div>
+    <div class="fld"><span class="lab">우선순위</span>
+      <div class="pri-pick" role="radiogroup" aria-label="우선순위">
+        <label><input type="radio" name="pri" value="p0"><span class="p0">P0<small>긴급</small></span></label>
+        <label><input type="radio" name="pri" value="p1"><span class="p1">P1<small>높음</small></span></label>
+        <label><input type="radio" name="pri" value="p2"><span class="p2">P2<small>보통</small></span></label>
+        <label><input type="radio" name="pri" value="p3"><span class="p3">P3<small>낮음</small></span></label>
+      </div>
+    </div>
+    <div class="two">
+      <div class="fld"><label for="f-as">담당자</label><input class="f" id="f-as" maxlength="12" list="as-list" autocomplete="off" placeholder="비워 두면 미배정"><datalist id="as-list"></datalist></div>
+      <div class="fld"><label for="f-pts">크기 (포인트)</label><select class="f" id="f-pts"></select></div>
+    </div>
+    <div class="two">
+      <div class="fld"><label for="f-due">마감일</label><input class="f" id="f-due" type="date"></div>
+      <div class="fld"><span class="lab">상태</span><label class="chk"><input type="checkbox" id="f-blk">막힘 (다른 작업·결정을 기다리는 중)</label></div>
+    </div>
+    <div class="fld"><label for="f-link">이슈·PR 링크</label><input class="f" id="f-link" type="url" inputmode="url" autocomplete="off" placeholder="https://github.com/…/pull/142"></div>
+    <!--@include src/partials/labels-field.html-->
+    <!--@include src/partials/editor-foot.html-->
+  </form>
+</div>

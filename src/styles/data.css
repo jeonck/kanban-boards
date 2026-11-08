@@ -1,0 +1,7 @@
+/* 데이터 백업 영역 (내보내기·가져오기) */
+.databar{display:grid;gap:12px;padding:14px clamp(14px,3vw,24px);border:1px solid var(--line);border-radius:14px;color:var(--muted);font-size:13px}
+.databar strong{color:var(--fg);margin-right:10px;font-size:14px}
+.db-btns{display:flex;flex-wrap:wrap;gap:8px}
+.im-box{display:grid;gap:10px;padding:12px 14px;border-radius:10px;background:var(--surface-2);color:var(--fg)}
+.im-box p{margin:0}
+.im-box .hint{color:var(--muted);font-size:12.5px}

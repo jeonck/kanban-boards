@@ -1,0 +1,36 @@
+/* 모바일(720px 이하) 공통. 단계 탭, 떠 있는 추가 버튼, 바텀시트 편집창. 보드 CSS 뒤에 로드한다. */
+.stages{display:none}
+@media (max-width:720px){
+  body{padding-block:14px calc(104px + env(safe-area-inset-bottom,0px))}
+  .wrap{gap:16px}
+  h1{font-size:1.4rem}
+  .sub{font-size:12.5px;gap:2px 12px}
+  .tools{width:100%;gap:8px}
+  .tools .in{width:100%;flex:1 1 100%}
+  .in,.sel,.f{font-size:16px;height:44px}
+  .btn{height:44px}
+  #add{position:fixed;right:max(16px,env(safe-area-inset-right,0px));bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:20;
+    height:52px;padding:0 22px;border-radius:26px;font-size:15px;box-shadow:0 8px 22px var(--shadow)}
+  .toast{bottom:calc(84px + env(safe-area-inset-bottom,0px))}
+
+  .stages{display:flex;gap:6px;position:sticky;top:env(safe-area-inset-top,0px);z-index:25;background:var(--bg);
+    padding:6px 0;margin:-4px 0 -6px;overflow-x:auto;scrollbar-width:none}
+  .stages::-webkit-scrollbar{display:none}
+  .stages button{flex:none;display:inline-flex;align-items:center;gap:7px;height:38px;padding:0 13px;border-radius:999px;
+    border:1px solid var(--line);background:var(--surface);color:var(--muted);font-weight:500;font-size:13.5px}
+  .stages button span{font-family:var(--mono);font-size:12px}
+  .stages button[aria-current="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-fg);font-weight:600}
+
+  .board{grid-auto-columns:86%;gap:10px;scroll-snap-type:x mandatory;margin-inline:calc(-1 * max(16px,env(safe-area-inset-left,0px)));
+    padding-inline:max(16px,env(safe-area-inset-left,0px));scroll-padding-inline:max(16px,env(safe-area-inset-left,0px))}
+  .col-add{width:40px;height:40px;font-size:22px}
+  .card{padding:12px 13px 13px}
+  .title{font-size:15px}
+
+  .scrim{align-items:flex-end;padding:0}
+  .sheet{border-radius:18px 18px 0 0;width:100%;max-height:92dvh;padding-bottom:calc(16px + env(safe-area-inset-bottom,0px))}
+  .chip{height:36px;padding:0 13px;font-size:13.5px}
+  .two{gap:10px}
+  .foot{position:sticky;bottom:0;background:var(--surface);padding:10px 0 calc(16px + env(safe-area-inset-bottom,0px));
+    margin-bottom:calc(-16px - env(safe-area-inset-bottom,0px));border-top:1px solid var(--line)}
+}

@@ -1,0 +1,25 @@
+/* 카드 편집창(모달) 공통 */
+.scrim{position:fixed;inset:0;z-index:60;background:var(--scrim);display:flex;align-items:center;justify-content:center;padding:16px}
+.sheet{width:min(var(--sheet-w,480px),100%);max-height:calc(100% - 8px);overflow:auto;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:18px 18px 16px;display:grid;gap:14px;box-shadow:0 24px 60px var(--shadow)}
+.sheet h2{margin:0;font-size:1.125rem}
+.sheet h2 small{font-family:var(--mono);font-size:.8rem;font-weight:400;color:var(--muted);margin-left:8px}
+.fld{display:grid;gap:6px;min-width:0}
+.fld>label,.fld>span.lab{font-size:12.5px;font-weight:600;color:var(--muted)}
+.f{height:38px;padding:0 11px;border-radius:9px;border:1px solid var(--line);background:var(--bg);width:100%;min-width:0}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{height:28px;padding:0 11px;border-radius:7px;font-size:12.5px;font-weight:500;background:var(--bg);color:var(--muted);border:1px solid var(--line)}
+.chip[aria-pressed="true"]{background:hsl(var(--h) var(--lb-s) var(--lb-bg));color:hsl(var(--h) var(--lb-s2) var(--lb-fg));border-color:transparent}
+.add-lb{display:flex;gap:6px}
+.err{margin:0;color:var(--danger);font-size:12.5px;min-height:1em}
+.foot{display:flex;gap:8px;justify-content:flex-end;align-items:center}
+.foot .grow{margin-right:auto}
+
+/* 이력 타임라인 */
+.hist-now{margin:0 0 6px;font-size:12.5px;color:var(--muted)}
+.hist{list-style:none;margin:0;padding:0;border:1px solid var(--line);border-radius:10px;max-height:190px;overflow:auto}
+.hist li{display:grid;grid-template-columns:auto 1fr;gap:1px 12px;padding:8px 10px;border-top:1px solid var(--line);font-size:13px}
+.hist li:first-child{border-top:0}
+.hist time{font-family:var(--mono);font-size:11.5px;color:var(--muted);grid-row:span 2;padding-top:2px}
+.hist em{font-style:normal;font-size:12px;color:var(--muted)}
+.hist-empty{margin:0;padding:10px 12px;border:1px dashed var(--line);border-radius:10px;color:var(--muted);font-size:12.5px}

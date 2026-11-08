@@ -1,0 +1,12 @@
+/* 콘텐츠 보드 모바일 보정 (공통 mobile.css 뒤에 로드) */
+@media (max-width:720px){
+  .seg{width:100%}
+  .seg button{flex:1;height:38px;padding:0 6px}
+  .pri-pick span{height:44px}
+  .perf{padding:16px 14px 8px}
+  .p-sum{display:grid;grid-template-columns:1fr 1fr;gap:12px 16px}
+  .axis,.row{grid-template-columns:1fr 6.5rem}
+  .axis>:first-child{display:none}
+  .r-t{grid-column:1/-1}
+  .r-title{padding:4px 0;font-size:14px}
+}

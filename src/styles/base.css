@@ -1,0 +1,40 @@
+/* 공통 기반: 리셋, 헤더, 버튼, 토스트. 색은 보드별 tokens.css가 정의한다. */
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:14px;line-height:1.5;
+  padding-block:20px 56px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  -webkit-text-size-adjust:100%}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:30;background:var(--bg)}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer;-webkit-tap-highlight-color:transparent}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.wrap{max-width:1560px;margin:0 auto;display:grid;gap:22px}
+
+/* 헤더 */
+.top{display:grid;gap:14px}
+.top-r1{display:flex;flex-wrap:wrap;gap:12px 24px;align-items:flex-end;justify-content:space-between}
+h1{margin:0;font-size:1.625rem;line-height:1.2;font-weight:700;letter-spacing:-.01em}
+.sub{margin:8px 0 0;color:var(--muted);font-size:13px;display:flex;flex-wrap:wrap;gap:2px 16px}
+.sub b{font-family:var(--mono);font-weight:500;color:var(--fg)}
+.sub .late,.sub .blk{color:var(--danger);font-weight:600}
+.sub .note{color:var(--warn)}
+.tools{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.in,.sel{height:36px;padding:0 11px;border-radius:9px;border:1px solid var(--line);background:var(--surface);min-width:0}
+.sel{padding-right:6px}
+.in::placeholder{color:var(--muted)}
+.tools .in{width:min(220px,100%)}
+
+/* 버튼 */
+.btn{height:36px;padding:0 14px;border-radius:9px;border:1px solid var(--line);background:var(--surface);font-weight:500}
+.btn:hover{border-color:var(--muted)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-fg);font-weight:600}
+.btn.primary:hover{filter:brightness(1.07)}
+.btn.danger{color:var(--danger);border-color:transparent;background:transparent}
+.btn.danger.armed{background:var(--danger-bg);border-color:var(--danger)}
+
+.banner{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:center;padding:11px 14px;border:1px dashed var(--line);border-radius:12px;color:var(--muted)}
+.banner span{min-width:0}
+
+.toast{position:fixed;left:50%;bottom:calc(16px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:80;background:var(--fg);color:var(--bg);padding:9px 14px;border-radius:10px;font-size:13px;max-width:calc(100% - 32px);box-shadow:0 8px 24px var(--shadow)}
+
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important;scroll-behavior:auto!important}}

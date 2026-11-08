@@ -1,0 +1,1704 @@
+<title>개발 프로젝트 보드</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Noto+Sans+KR:wght@400;500;600;700&display=swap">
+<style>
+/* 개발 보드 색과 글꼴. 공통 CSS가 쓰는 의미 토큰(--danger, --warn, --ok)도 여기서 정한다. */
+:root{
+  --bg:#F0F2F7; --surface:#FFFFFF; --surface-2:#E4E8F0; --fg:#0F172A; --muted:#566074; --line:#D2D8E3;
+  --accent:#3454D1; --accent-fg:#FFFFFF; --accent-soft:#DCE3FA;
+  --p0:#B42318; --p0-bg:#FDE3E0; --p1:#B54708; --p1-bg:#FFE7D3; --p2:#7A5A00; --p2-bg:#F7EBC0; --p3:#475467; --p3-bg:#E4E8EF;
+  --c1:#B9C2D3; --c2:#94A3C2; --c3:#6F86D6; --c4:#3454D1; --c5:#2E9D6B;
+  --danger:var(--p0); --danger-bg:var(--p0-bg); --warn:var(--p1); --ok:var(--c5);
+  --shadow:rgba(15,23,42,.12); --scrim:rgba(5,8,14,.55); --sheet-w:520px;
+  --lb-s:55%; --lb-bg:91%; --lb-s2:55%; --lb-fg:28%; --av-l:42%; --av-fg:#FFFFFF;
+  --sans:"Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,"SF Mono",Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0D1117; --surface:#161B22; --surface-2:#10151C; --fg:#E6EDF3; --muted:#8B97A8; --line:#29313D;
+    --accent:#7C9BFF; --accent-fg:#0A1230; --accent-soft:#1B2745;
+    --p0:#FF8A80; --p0-bg:#401D1B; --p1:#FFA766; --p1-bg:#3B2412; --p2:#E9C46A; --p2-bg:#38300F; --p3:#A3AFC2; --p3-bg:#242B36;
+    --c1:#3A4558; --c2:#4F5F7E; --c3:#5B74C4; --c4:#7C9BFF; --c5:#46C08B;
+    --shadow:rgba(0,0,0,.5);
+    --lb-s:35%; --lb-bg:22%; --lb-s2:60%; --lb-fg:80%; --av-l:52%; --av-fg:#0B1020;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0D1117; --surface:#161B22; --surface-2:#10151C; --fg:#E6EDF3; --muted:#8B97A8; --line:#29313D;
+  --accent:#7C9BFF; --accent-fg:#0A1230; --accent-soft:#1B2745;
+  --p0:#FF8A80; --p0-bg:#401D1B; --p1:#FFA766; --p1-bg:#3B2412; --p2:#E9C46A; --p2-bg:#38300F; --p3:#A3AFC2; --p3-bg:#242B36;
+  --c1:#3A4558; --c2:#4F5F7E; --c3:#5B74C4; --c4:#7C9BFF; --c5:#46C08B;
+  --shadow:rgba(0,0,0,.5);
+  --lb-s:35%; --lb-bg:22%; --lb-s2:60%; --lb-fg:80%; --av-l:52%; --av-fg:#0B1020;
+  color-scheme:dark;
+}
+
+/* 공통 기반: 리셋, 헤더, 버튼, 토스트. 색은 보드별 tokens.css가 정의한다. */
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:14px;line-height:1.5;
+  padding-block:20px 56px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  -webkit-text-size-adjust:100%}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:30;background:var(--bg)}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer;-webkit-tap-highlight-color:transparent}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.wrap{max-width:1560px;margin:0 auto;display:grid;gap:22px}
+
+/* 헤더 */
+.top{display:grid;gap:14px}
+.top-r1{display:flex;flex-wrap:wrap;gap:12px 24px;align-items:flex-end;justify-content:space-between}
+h1{margin:0;font-size:1.625rem;line-height:1.2;font-weight:700;letter-spacing:-.01em}
+.sub{margin:8px 0 0;color:var(--muted);font-size:13px;display:flex;flex-wrap:wrap;gap:2px 16px}
+.sub b{font-family:var(--mono);font-weight:500;color:var(--fg)}
+.sub .late,.sub .blk{color:var(--danger);font-weight:600}
+.sub .note{color:var(--warn)}
+.tools{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.in,.sel{height:36px;padding:0 11px;border-radius:9px;border:1px solid var(--line);background:var(--surface);min-width:0}
+.sel{padding-right:6px}
+.in::placeholder{color:var(--muted)}
+.tools .in{width:min(220px,100%)}
+
+/* 버튼 */
+.btn{height:36px;padding:0 14px;border-radius:9px;border:1px solid var(--line);background:var(--surface);font-weight:500}
+.btn:hover{border-color:var(--muted)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-fg);font-weight:600}
+.btn.primary:hover{filter:brightness(1.07)}
+.btn.danger{color:var(--danger);border-color:transparent;background:transparent}
+.btn.danger.armed{background:var(--danger-bg);border-color:var(--danger)}
+
+.banner{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:center;padding:11px 14px;border:1px dashed var(--line);border-radius:12px;color:var(--muted)}
+.banner span{min-width:0}
+
+.toast{position:fixed;left:50%;bottom:calc(16px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:80;background:var(--fg);color:var(--bg);padding:9px 14px;border-radius:10px;font-size:13px;max-width:calc(100% - 32px);box-shadow:0 8px 24px var(--shadow)}
+
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important;scroll-behavior:auto!important}}
+
+/* 열과 카드의 공통 뼈대. 카드 안쪽 모양은 보드별 card.css가 정한다. */
+.board{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(272px,1fr);gap:12px;overflow-x:auto;align-items:stretch;
+  scroll-snap-type:x proximity;padding-bottom:6px;overscroll-behavior-x:contain}
+body.dragging .board{scroll-snap-type:none}
+.col{background:var(--surface-2);border:1px solid transparent;border-radius:14px;padding:10px;display:flex;flex-direction:column;gap:10px;min-width:0;scroll-snap-align:start;transition:background .15s,border-color .15s}
+.col.drop-target{border-color:var(--accent);background:var(--accent-soft)}
+.col-h{display:flex;align-items:center;gap:8px;padding:2px 2px 0 4px}
+.col-h h2{margin:0;font-size:14px;font-weight:600}
+.count{font-family:var(--mono);font-size:12px;color:var(--muted);background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:0 8px;line-height:20px}
+.count.over{color:var(--danger);border-color:var(--danger);background:var(--danger-bg);font-weight:500}
+.col-add{margin-left:auto;width:30px;height:30px;border-radius:8px;border:0;background:transparent;color:var(--muted);font-size:20px;line-height:1}
+.col-add:hover{background:var(--surface);color:var(--fg)}
+.col-b{display:flex;flex-direction:column;gap:8px;flex:1;min-height:110px}
+.empty{margin:0;padding:18px 10px;text-align:center;color:var(--muted);font-size:12.5px;border:1px dashed var(--line);border-radius:10px;word-break:keep-all}
+.drop-line{height:3px;border-radius:2px;background:var(--accent);flex:none;margin:-3px 0}
+
+.card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:11px 12px 12px;display:grid;gap:9px;cursor:grab;
+  user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;transition:box-shadow .15s,border-color .15s}
+.card:hover{border-color:color-mix(in srgb,var(--accent) 50%,var(--line));box-shadow:0 2px 10px var(--shadow)}
+.card.is-dragging{opacity:.35}
+.ghost{position:fixed;left:0;top:0;z-index:50;pointer-events:none;margin:0;box-shadow:0 16px 36px var(--shadow);cursor:grabbing;transform-origin:24px 18px}
+body.dragging{user-select:none;-webkit-user-select:none;cursor:grabbing}
+.title{margin:0;font-size:14.5px;font-weight:500;line-height:1.45;word-break:keep-all;overflow-wrap:anywhere}
+.due{font-family:var(--mono);font-size:11.5px;color:var(--muted);white-space:nowrap}
+.due.late{color:var(--danger);font-weight:500}
+.due.today{color:var(--warn);font-weight:500}
+.due.soon{color:var(--fg)}
+.due.done{color:var(--ok)}
+.labels{display:flex;flex-wrap:wrap;gap:4px}
+.lb{font-size:11.5px;font-weight:500;line-height:18px;padding:0 8px;border-radius:5px;
+  background:hsl(var(--h) var(--lb-s) var(--lb-bg));color:hsl(var(--h) var(--lb-s2) var(--lb-fg))}
+
+/* 카드 편집창(모달) 공통 */
+.scrim{position:fixed;inset:0;z-index:60;background:var(--scrim);display:flex;align-items:center;justify-content:center;padding:16px}
+.sheet{width:min(var(--sheet-w,480px),100%);max-height:calc(100% - 8px);overflow:auto;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:18px 18px 16px;display:grid;gap:14px;box-shadow:0 24px 60px var(--shadow)}
+.sheet h2{margin:0;font-size:1.125rem}
+.sheet h2 small{font-family:var(--mono);font-size:.8rem;font-weight:400;color:var(--muted);margin-left:8px}
+.fld{display:grid;gap:6px;min-width:0}
+.fld>label,.fld>span.lab{font-size:12.5px;font-weight:600;color:var(--muted)}
+.f{height:38px;padding:0 11px;border-radius:9px;border:1px solid var(--line);background:var(--bg);width:100%;min-width:0}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{height:28px;padding:0 11px;border-radius:7px;font-size:12.5px;font-weight:500;background:var(--bg);color:var(--muted);border:1px solid var(--line)}
+.chip[aria-pressed="true"]{background:hsl(var(--h) var(--lb-s) var(--lb-bg));color:hsl(var(--h) var(--lb-s2) var(--lb-fg));border-color:transparent}
+.add-lb{display:flex;gap:6px}
+.err{margin:0;color:var(--danger);font-size:12.5px;min-height:1em}
+.foot{display:flex;gap:8px;justify-content:flex-end;align-items:center}
+.foot .grow{margin-right:auto}
+
+/* 이력 타임라인 */
+.hist-now{margin:0 0 6px;font-size:12.5px;color:var(--muted)}
+.hist{list-style:none;margin:0;padding:0;border:1px solid var(--line);border-radius:10px;max-height:190px;overflow:auto}
+.hist li{display:grid;grid-template-columns:auto 1fr;gap:1px 12px;padding:8px 10px;border-top:1px solid var(--line);font-size:13px}
+.hist li:first-child{border-top:0}
+.hist time{font-family:var(--mono);font-size:11.5px;color:var(--muted);grid-row:span 2;padding-top:2px}
+.hist em{font-style:normal;font-size:12px;color:var(--muted)}
+.hist-empty{margin:0;padding:10px 12px;border:1px dashed var(--line);border-radius:10px;color:var(--muted);font-size:12.5px}
+
+/* 데이터 백업 영역 (내보내기·가져오기) */
+.databar{display:grid;gap:12px;padding:14px clamp(14px,3vw,24px);border:1px solid var(--line);border-radius:14px;color:var(--muted);font-size:13px}
+.databar strong{color:var(--fg);margin-right:10px;font-size:14px}
+.db-btns{display:flex;flex-wrap:wrap;gap:8px}
+.im-box{display:grid;gap:10px;padding:12px 14px;border-radius:10px;background:var(--surface-2);color:var(--fg)}
+.im-box p{margin:0}
+.im-box .hint{color:var(--muted);font-size:12.5px}
+
+/* "막힘만" 토글 */
+.chip-t{height:36px;padding:0 13px;border-radius:9px;border:1px solid var(--line);background:var(--surface);color:var(--muted);font-weight:500}
+.chip-t[aria-pressed="true"]{background:var(--p0-bg);border-color:var(--p0);color:var(--p0);font-weight:600}
+
+/* 개발 카드: 키·유형·막힘·우선순위 한 줄, 담당자·포인트·마감·링크 한 줄 */
+.col-pts{font-family:var(--mono);font-size:11.5px;color:var(--muted)}
+.wip-flag{font-size:11.5px;color:var(--danger);font-weight:600}
+.card{padding:10px 12px 11px;gap:8px}
+.card.is-blocked{border-color:color-mix(in srgb,var(--danger) 60%,var(--line))}
+.c-top{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.key{font-family:var(--mono);font-size:11.5px;color:var(--muted)}
+.tp{font-size:11px;font-weight:600;line-height:17px;padding:0 6px;border-radius:4px;border:1px solid hsl(var(--h) 45% 55% / .55);color:hsl(var(--h) var(--lb-s2) var(--lb-fg))}
+.blk-t{font-size:11px;font-weight:700;line-height:17px;padding:0 6px;border-radius:4px;background:var(--danger);color:var(--surface)}
+.pri{margin-left:auto;display:inline-flex;align-items:center;font-family:var(--mono);font-size:11.5px;font-weight:500;padding:0 8px;border-radius:999px;line-height:19px}
+.pri.p0{color:var(--p0);background:var(--p0-bg)}
+.pri.p1{color:var(--p1);background:var(--p1-bg)}
+.pri.p2{color:var(--p2);background:var(--p2-bg)}
+.pri.p3{color:var(--p3);background:var(--p3-bg)}
+.meta{display:flex;flex-wrap:wrap;align-items:center;gap:5px 10px;min-width:0}
+.as{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;color:var(--muted);min-width:0}
+.av{flex:none;width:20px;height:20px;border-radius:50%;display:inline-grid;place-items:center;font-size:11px;font-weight:700;
+  background:hsl(var(--h) 45% var(--av-l));color:var(--av-fg)}
+.av.none{background:transparent;border:1px dashed var(--muted);color:var(--muted);font-weight:500}
+.pt{font-family:var(--mono);font-size:11.5px;min-width:22px;text-align:center;line-height:18px;padding:0 6px;border-radius:999px;background:var(--surface-2);color:var(--fg)}
+.lk{font-family:var(--mono);font-size:11.5px;color:var(--accent);text-decoration:none;white-space:nowrap}
+.lk:hover{text-decoration:underline}
+.lb{font-size:11px;line-height:17px;padding:0 7px}
+
+/* 편집창: P0~P3 선택, 막힘 체크 */
+.pri-pick{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.pri-pick label{position:relative}
+.pri-pick input{position:absolute;opacity:0;inset:0}
+.pri-pick span{display:grid;justify-items:center;align-content:center;height:46px;border-radius:9px;border:1px solid var(--line);font-family:var(--mono);font-weight:500;font-size:13px;line-height:1.2}
+.pri-pick span small{font-family:var(--sans);font-size:11px;color:var(--muted);font-weight:400}
+.pri-pick .p0{color:var(--p0)}.pri-pick .p1{color:var(--p1)}.pri-pick .p2{color:var(--p2)}.pri-pick .p3{color:var(--p3)}
+.pri-pick input:checked+span.p0{background:var(--p0-bg);border-color:var(--p0)}
+.pri-pick input:checked+span.p1{background:var(--p1-bg);border-color:var(--p1)}
+.pri-pick input:checked+span.p2{background:var(--p2-bg);border-color:var(--p2)}
+.pri-pick input:checked+span.p3{background:var(--p3-bg);border-color:var(--p3)}
+.pri-pick input:focus-visible+span{outline:2px solid var(--accent);outline-offset:2px}
+.chk{display:flex;align-items:center;gap:10px;min-height:38px;font-size:13.5px}
+.chk input{width:18px;height:18px;accent-color:var(--danger)}
+
+/* 흐름 지표 패널 */
+.flow{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px clamp(14px,3vw,24px) 20px;display:grid;gap:20px}
+.flow h2{margin:0;font-size:1.0625rem}
+.flow h3{margin:0 0 10px;font-size:13px;font-weight:600;color:var(--muted)}
+.p-sum{display:flex;flex-wrap:wrap;gap:10px 36px}
+.p-sum div{display:grid}
+.p-sum span{color:var(--muted);font-size:12px}
+.p-sum strong{font-family:var(--mono);font-weight:500;font-size:1.3rem;line-height:1.3}
+.p-sum strong small{font-size:.8rem;color:var(--muted);font-weight:400;margin-left:2px}
+.p-sum .bad{color:var(--danger)}
+.dist{display:flex;height:14px;border-radius:7px;overflow:hidden;background:var(--surface-2);gap:2px}
+.dist i{display:block;min-width:4px}
+.legend{display:flex;flex-wrap:wrap;gap:6px 16px;margin-top:10px;font-size:12px;color:var(--muted)}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px}
+.legend b{font-family:var(--mono);font-weight:500;color:var(--fg)}
+.flow-grid{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:24px}
+.flow-grid>div{min-width:0}
+#trend{min-height:176px}
+#trend svg{display:block;max-width:100%}
+.gl{stroke:var(--line);stroke-width:1;fill:none}
+.ax{fill:var(--muted);font-family:var(--mono);font-size:11px}
+.ln{fill:none;stroke:var(--accent);stroke-width:2;stroke-linejoin:round;stroke-linecap:round}
+.area{fill:var(--accent-soft);stroke:none}
+.dot{fill:var(--accent);stroke:var(--surface);stroke-width:2}
+.endv{fill:var(--fg);font-family:var(--mono);font-size:11.5px;font-weight:500}
+.tp-rows{display:grid;gap:10px}
+.tp-row{display:grid;gap:4px}
+.tp-row .l{display:flex;justify-content:space-between;gap:8px;font-size:12px;color:var(--muted)}
+.tp-row .l b{font-family:var(--mono);font-weight:500;color:var(--fg)}
+.tp-row .b{height:10px;background:var(--surface-2);border-radius:5px;overflow:hidden}
+.tp-row .b i{display:block;height:100%;min-width:3px;border-radius:5px;background:var(--c5)}
+.flow-empty{margin:0;color:var(--muted);font-size:13px}
+@media (max-width:900px){.flow-grid{grid-template-columns:minmax(0,1fr)}}
+
+/* 모바일(720px 이하) 공통. 단계 탭, 떠 있는 추가 버튼, 바텀시트 편집창. 보드 CSS 뒤에 로드한다. */
+.stages{display:none}
+@media (max-width:720px){
+  body{padding-block:14px calc(104px + env(safe-area-inset-bottom,0px))}
+  .wrap{gap:16px}
+  h1{font-size:1.4rem}
+  .sub{font-size:12.5px;gap:2px 12px}
+  .tools{width:100%;gap:8px}
+  .tools .in{width:100%;flex:1 1 100%}
+  .in,.sel,.f{font-size:16px;height:44px}
+  .btn{height:44px}
+  #add{position:fixed;right:max(16px,env(safe-area-inset-right,0px));bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:20;
+    height:52px;padding:0 22px;border-radius:26px;font-size:15px;box-shadow:0 8px 22px var(--shadow)}
+  .toast{bottom:calc(84px + env(safe-area-inset-bottom,0px))}
+
+  .stages{display:flex;gap:6px;position:sticky;top:env(safe-area-inset-top,0px);z-index:25;background:var(--bg);
+    padding:6px 0;margin:-4px 0 -6px;overflow-x:auto;scrollbar-width:none}
+  .stages::-webkit-scrollbar{display:none}
+  .stages button{flex:none;display:inline-flex;align-items:center;gap:7px;height:38px;padding:0 13px;border-radius:999px;
+    border:1px solid var(--line);background:var(--surface);color:var(--muted);font-weight:500;font-size:13.5px}
+  .stages button span{font-family:var(--mono);font-size:12px}
+  .stages button[aria-current="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-fg);font-weight:600}
+
+  .board{grid-auto-columns:86%;gap:10px;scroll-snap-type:x mandatory;margin-inline:calc(-1 * max(16px,env(safe-area-inset-left,0px)));
+    padding-inline:max(16px,env(safe-area-inset-left,0px));scroll-padding-inline:max(16px,env(safe-area-inset-left,0px))}
+  .col-add{width:40px;height:40px;font-size:22px}
+  .card{padding:12px 13px 13px}
+  .title{font-size:15px}
+
+  .scrim{align-items:flex-end;padding:0}
+  .sheet{border-radius:18px 18px 0 0;width:100%;max-height:92dvh;padding-bottom:calc(16px + env(safe-area-inset-bottom,0px))}
+  .chip{height:36px;padding:0 13px;font-size:13.5px}
+  .two{gap:10px}
+  .foot{position:sticky;bottom:0;background:var(--surface);padding:10px 0 calc(16px + env(safe-area-inset-bottom,0px));
+    margin-bottom:calc(-16px - env(safe-area-inset-bottom,0px));border-top:1px solid var(--line)}
+}
+
+/* 개발 보드 모바일 보정 (공통 mobile.css 뒤에 로드) */
+@media (max-width:720px){
+  .tools .sel{flex:1 1 0}
+  .chip-t{height:44px}
+  .card{padding:12px 13px 13px}
+  .flow{padding:16px 14px}
+  .p-sum{display:grid;grid-template-columns:1fr 1fr;gap:12px 16px}
+}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="top-r1">
+      <div>
+        <h1>개발 프로젝트 보드</h1>
+        <p class="sub" id="sub"></p>
+      </div>
+      <button type="button" class="btn primary" id="add">+ 새 카드</button>
+    </div>
+    <div class="tools">
+      <input class="in" id="q" type="search" placeholder="제목·키·라벨 검색" aria-label="카드 검색">
+      <select class="sel" id="fa" aria-label="담당자 필터"></select>
+      <select class="sel" id="ft" aria-label="유형 필터"></select>
+      <button type="button" class="chip-t" id="fb" aria-pressed="false">막힘만</button>
+    </div>
+  </header>
+
+  <div id="banner"></div>
+  <nav class="stages" id="stages" aria-label="단계 이동"></nav>
+  <main class="board" id="board" aria-label="개발 프로젝트 칸반 보드"></main>
+  <section class="flow" id="flow" aria-label="흐름 지표"></section>
+  <section class="databar" aria-label="데이터 백업">
+    <div><strong>데이터</strong><span>파일로 받아 두면 다른 보드로 옮기거나 복원할 수 있어요.</span></div>
+    <div class="db-btns">
+      <button type="button" class="btn" id="ex-json">JSON 내보내기</button>
+      <button type="button" class="btn" id="ex-csv">CSV 내보내기</button>
+      <button type="button" class="btn" id="im-btn">JSON 가져오기</button>
+      <input type="file" id="im-file" accept=".json,application/json" hidden>
+    </div>
+    <div id="im-panel"></div>
+  </section>
+</div>
+
+<div class="scrim" id="scrim" hidden>
+  <form class="sheet" id="form" role="dialog" aria-modal="true" aria-labelledby="m-head" novalidate>
+    <h2 id="m-head">새 카드</h2>
+    <div class="fld"><label for="f-title">제목</label><input class="f" id="f-title" maxlength="120" autocomplete="off" placeholder="예: 검색 API 페이지네이션"></div>
+    <div class="two">
+      <div class="fld"><label for="f-col">단계</label><select class="f" id="f-col"></select></div>
+      <div class="fld"><label for="f-type">유형</label><select class="f" id="f-type"></select></div>
+    </div>
+    <div class="fld"><span class="lab">우선순위</span>
+      <div class="pri-pick" role="radiogroup" aria-label="우선순위">
+        <label><input type="radio" name="pri" value="p0"><span class="p0">P0<small>긴급</small></span></label>
+        <label><input type="radio" name="pri" value="p1"><span class="p1">P1<small>높음</small></span></label>
+        <label><input type="radio" name="pri" value="p2"><span class="p2">P2<small>보통</small></span></label>
+        <label><input type="radio" name="pri" value="p3"><span class="p3">P3<small>낮음</small></span></label>
+      </div>
+    </div>
+    <div class="two">
+      <div class="fld"><label for="f-as">담당자</label><input class="f" id="f-as" maxlength="12" list="as-list" autocomplete="off" placeholder="비워 두면 미배정"><datalist id="as-list"></datalist></div>
+      <div class="fld"><label for="f-pts">크기 (포인트)</label><select class="f" id="f-pts"></select></div>
+    </div>
+    <div class="two">
+      <div class="fld"><label for="f-due">마감일</label><input class="f" id="f-due" type="date"></div>
+      <div class="fld"><span class="lab">상태</span><label class="chk"><input type="checkbox" id="f-blk">막힘 (다른 작업·결정을 기다리는 중)</label></div>
+    </div>
+    <div class="fld"><label for="f-link">이슈·PR 링크</label><input class="f" id="f-link" type="url" inputmode="url" autocomplete="off" placeholder="https://github.com/…/pull/142"></div>
+    <div class="fld"><span class="lab">라벨</span>
+      <div class="chips" id="chips"></div>
+      <div class="add-lb"><input class="f" id="f-new" maxlength="16" placeholder="새 라벨 입력 후 Enter" aria-label="새 라벨"><button type="button" class="btn" id="f-new-btn">추가</button></div>
+    </div>
+    <div class="fld" id="hist-wrap" hidden><span class="lab">이력</span><div id="hist-box"></div></div>
+    <p class="err" id="m-err" role="alert"></p>
+    <div class="foot">
+      <button type="button" class="btn danger grow" id="btn-del">삭제</button>
+      <button type="button" class="btn" id="btn-cancel">취소</button>
+      <button type="submit" class="btn primary">저장</button>
+    </div>
+  </form>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+<script>
+(() => {
+  // src/core/util.js
+  var DAY = 864e5;
+  var $ = (sel, root = document) => root.querySelector(sel);
+  var pad = (n) => String(n).padStart(2, "0");
+  var num = (v) => {
+    v = +v;
+    return Number.isFinite(v) ? v : 0;
+  };
+  var sum = (list, f) => list.reduce((s, x) => s + f(x), 0);
+  var newId = () => "c" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+  var ESC = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" };
+  var esc = (s) => String(s == null ? "" : s).replace(/[&<>"']/g, (c) => ESC[c]);
+  function hashHue(label) {
+    let h = 0;
+    for (let i = 0; i < label.length; i++) h = (h * 31 + label.charCodeAt(i)) % 360;
+    return h;
+  }
+  function niceMax(v) {
+    const p = Math.pow(10, Math.floor(Math.log10(v)));
+    for (const m of [1, 2, 2.5, 5, 10]) if (m * p >= v) return m * p;
+    return 10 * p;
+  }
+  function csvCell(v) {
+    let s = String(v == null ? "" : v);
+    if (/^[=+\-@\t\r]/.test(s)) s = "'" + s;
+    return '"' + s.replace(/"/g, '""') + '"';
+  }
+
+  // src/core/toast.js
+  var timer = null;
+  function toast(msg) {
+    const t = $("#toast");
+    t.textContent = msg;
+    t.hidden = false;
+    clearTimeout(timer);
+    timer = setTimeout(() => {
+      t.hidden = true;
+    }, 3400);
+  }
+
+  // src/core/store.js
+  function createStore(cfg) {
+    const { lsKey, norm: norm2, sample, diff: diff2, prepare: prepare2, saved: saved2, onChange } = cfg;
+    let cards = sample();
+    let mode = "preview";
+    let coll = null;
+    let hist = null;
+    let histLocal = [];
+    const queues = /* @__PURE__ */ new Map();
+    const persistLocal = () => {
+      try {
+        localStorage.setItem(lsKey, JSON.stringify(cards));
+      } catch (e) {
+      }
+    };
+    const loadHistLocal = () => {
+      try {
+        const r = localStorage.getItem(lsKey + "-h");
+        histLocal = r ? JSON.parse(r) : [];
+        if (!Array.isArray(histLocal)) histLocal = [];
+      } catch (e) {
+        histLocal = [];
+      }
+    };
+    const saveHistLocal = () => {
+      try {
+        localStorage.setItem(lsKey + "-h", JSON.stringify(histLocal.slice(-2e3)));
+      } catch (e) {
+      }
+    };
+    const queue = (id, fn) => {
+      const prev = queues.get(id) || Promise.resolve();
+      const next = prev.catch(() => {
+      }).then(fn);
+      queues.set(id, next);
+      return next;
+    };
+    function fail(e) {
+      toast(e && e.code === "invalid_argument" ? "\uC774 \uBCF4\uB4DC\uB97C \uC218\uC815\uD560 \uAD8C\uD55C\uC774 \uC5C6\uC5B4\uC694." : "\uC800\uC7A5\uD558\uC9C0 \uBABB\uD588\uC5B4\uC694. \uC7A0\uC2DC \uD6C4 \uB2E4\uC2DC \uC2DC\uB3C4\uD574 \uC8FC\uC138\uC694.");
+      if (coll) coll.get().then(applySnap).catch(() => {
+      });
+    }
+    function applySnap(snap) {
+      cards = snap.docs.map((d) => norm2({ id: d.id, ...d.data() }));
+      onChange();
+    }
+    function guard() {
+      if (mode === "preview") {
+        toast("\uBD88\uB7EC\uC624\uB294 \uC911\uC774\uC5D0\uC694. \uC7A0\uC2DC \uD6C4 \uB2E4\uC2DC \uC2DC\uB3C4\uD574 \uC8FC\uC138\uC694.");
+        return false;
+      }
+      return true;
+    }
+    const find = (id) => cards.find((c) => c.id === id);
+    function nextOrder(col) {
+      let m = 0;
+      cards.forEach((c) => {
+        if (c.col === col && c.order > m) m = c.order;
+      });
+      return m + 1;
+    }
+    async function logEvents(cardId, evs) {
+      if (!evs.length) return;
+      const at = Date.now();
+      for (let i = 0; i < evs.length; i++) {
+        const e = { cardId, at: at + i, ...evs[i] };
+        if (mode === "db" && hist) {
+          try {
+            await hist.add(e);
+          } catch (x) {
+          }
+        } else {
+          histLocal.push({ id: "h" + at + i, ...e });
+          saveHistLocal();
+        }
+      }
+    }
+    async function fetchHistory(id) {
+      let list;
+      if (mode === "db" && hist) {
+        const snap = await hist.where("cardId", "==", id).limit(300).get();
+        list = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+      } else {
+        list = histLocal.filter((e) => e.cardId === id);
+      }
+      return list.sort((a, b) => a.at - b.at);
+    }
+    async function purgeHistory(id) {
+      try {
+        if (mode === "db" && hist) {
+          const snap = await hist.where("cardId", "==", id).limit(500).get();
+          for (const d of snap.docs) await hist.doc(d.id).delete();
+        } else {
+          histLocal = histLocal.filter((e) => e.cardId !== id);
+          saveHistLocal();
+        }
+      } catch (e) {
+      }
+    }
+    async function save(card) {
+      if (!guard()) return false;
+      card = norm2(card);
+      const i = cards.findIndex((c) => c.id === card.id);
+      const old = i >= 0 ? cards[i] : null;
+      if (prepare2) card = prepare2(old, card);
+      const evs = diff2(old, card);
+      if (i >= 0) cards[i] = card;
+      else cards.push(card);
+      onChange();
+      if (saved2) saved2(old, card, cards);
+      if (mode === "db") {
+        const data = { ...card };
+        delete data.id;
+        try {
+          await queue(card.id, () => coll.doc(card.id).set(data));
+        } catch (e) {
+          fail(e);
+          return true;
+        }
+      } else {
+        persistLocal();
+      }
+      await logEvents(card.id, evs);
+      return true;
+    }
+    async function removeMany(ids) {
+      if (!guard() || !ids.length) return false;
+      const set = new Set(ids);
+      cards = cards.filter((c) => !set.has(c.id));
+      onChange();
+      if (mode === "db") {
+        try {
+          for (const id of ids) {
+            await queue(id, () => coll.doc(id).delete());
+            await purgeHistory(id);
+          }
+        } catch (e) {
+          fail(e);
+          return false;
+        }
+      } else {
+        persistLocal();
+        for (const id of ids) await purgeHistory(id);
+      }
+      return true;
+    }
+    async function bulkApply(ups, delIds) {
+      if (!guard()) return;
+      const map = new Map(cards.map((c) => [c.id, c]));
+      delIds.forEach((id) => map.delete(id));
+      ups.forEach((c) => map.set(c.id, c));
+      cards = Array.from(map.values());
+      onChange();
+      if (mode === "db") {
+        toast("\uC800\uC7A5\uD558\uB294 \uC911\uC774\uC5D0\uC694\u2026");
+        try {
+          for (const id of delIds) {
+            await queue(id, () => coll.doc(id).delete());
+            await purgeHistory(id);
+          }
+          for (const c of ups) {
+            const d = { ...c };
+            delete d.id;
+            await queue(c.id, () => coll.doc(c.id).set(d));
+          }
+          toast("\uAC00\uC838\uC624\uAE30\uB97C \uB9C8\uCCE4\uC5B4\uC694.");
+        } catch (e) {
+          fail(e);
+        }
+      } else {
+        persistLocal();
+        for (const id of delIds) await purgeHistory(id);
+        toast("\uAC00\uC838\uC624\uAE30\uB97C \uB9C8\uCCE4\uC5B4\uC694.");
+      }
+    }
+    async function seed() {
+      for (const c of sample()) await save(c);
+    }
+    async function init() {
+      loadHistLocal();
+      let db = null;
+      try {
+        db = await (window.claude && window.claude.use ? window.claude.use("db") : null);
+      } catch (e) {
+        db = null;
+      }
+      const toLocal = () => {
+        mode = "local";
+        try {
+          const raw = localStorage.getItem(lsKey);
+          cards = raw ? JSON.parse(raw).map(norm2) : sample();
+        } catch (e) {
+          cards = sample();
+        }
+        onChange();
+      };
+      if (!db) {
+        toLocal();
+        return;
+      }
+      coll = db.collection("cards");
+      hist = db.collection("history");
+      coll.onSnapshot(
+        (snap) => {
+          if (snap.metadata && snap.metadata.fromCache && snap.empty) return;
+          mode = "db";
+          applySnap(snap);
+        },
+        () => toLocal()
+      );
+    }
+    return {
+      init,
+      save,
+      seed,
+      removeMany,
+      bulkApply,
+      find,
+      nextOrder,
+      history: { fetch: fetchHistory },
+      get cards() {
+        return cards;
+      },
+      get mode() {
+        return mode;
+      }
+    };
+  }
+
+  // src/core/drag.js
+  function attachDrag({ board, getCard, onDrop, onEnd }) {
+    const line = document.createElement("div");
+    line.className = "drop-line";
+    let drag = null;
+    let pending = null;
+    let suppress = false;
+    const isMobile = () => window.innerWidth <= 720;
+    function start(p, x, y) {
+      clearTimeout(p.timer);
+      pending = null;
+      const r = p.el.getBoundingClientRect();
+      const ghost = p.el.cloneNode(true);
+      ghost.className = "card ghost";
+      ghost.removeAttribute("tabindex");
+      ghost.style.width = r.width + "px";
+      document.body.appendChild(ghost);
+      p.el.classList.add("is-dragging");
+      document.body.classList.add("dragging");
+      drag = { id: p.id, el: p.el, ghost, offX: x - r.left, offY: y - r.top, x, y, colEl: p.el.closest(".col"), idx: 0, list: [], last: null };
+      if (navigator.vibrate) {
+        try {
+          navigator.vibrate(8);
+        } catch (e) {
+        }
+      }
+      move(x, y);
+      requestAnimationFrame(loop);
+    }
+    function move(x, y) {
+      drag.x = x;
+      drag.y = y;
+      drag.ghost.style.transform = "translate(" + (x - drag.offX) + "px," + (y - drag.offY) + "px) rotate(1.6deg)";
+      updateTarget();
+    }
+    function updateTarget() {
+      const el = document.elementFromPoint(drag.x, drag.y);
+      let colEl = el ? el.closest(".col") : null;
+      if (!colEl) colEl = drag.colEl;
+      if (!colEl) return;
+      const body = colEl.querySelector(".col-b");
+      const list = Array.prototype.filter.call(body.querySelectorAll(".card"), (c) => c !== drag.el);
+      let idx = 0;
+      for (let i = 0; i < list.length; i++) {
+        const r = list[i].getBoundingClientRect();
+        if (drag.y > r.top + r.height / 2) idx++;
+        else break;
+      }
+      drag.colEl = colEl;
+      drag.idx = idx;
+      drag.list = list;
+      if (drag.last !== colEl) {
+        if (drag.last) drag.last.classList.remove("drop-target");
+        colEl.classList.add("drop-target");
+        drag.last = colEl;
+      }
+      body.insertBefore(line, list[idx] || null);
+    }
+    function loop() {
+      if (!drag) return;
+      const r = board.getBoundingClientRect();
+      const m = isMobile();
+      const edge = m ? 64 : 48;
+      const topEdge = m ? 112 : 72;
+      const stepX = m ? 16 : 12;
+      let dx = 0;
+      let dy = 0;
+      if (drag.x < r.left + edge) dx = -stepX;
+      else if (drag.x > r.right - edge) dx = stepX;
+      if (drag.y < topEdge) dy = -14;
+      else if (drag.y > window.innerHeight - 72) dy = 14;
+      if (dx) board.scrollLeft += dx;
+      if (dy) window.scrollBy(0, dy);
+      if (dx || dy) updateTarget();
+      requestAnimationFrame(loop);
+    }
+    function finish(commit) {
+      const d = drag;
+      drag = null;
+      d.ghost.remove();
+      d.el.classList.remove("is-dragging");
+      document.body.classList.remove("dragging");
+      line.remove();
+      if (d.last) d.last.classList.remove("drop-target");
+      suppress = true;
+      setTimeout(() => {
+        suppress = false;
+      }, 60);
+      if (commit && d.colEl) {
+        const prev = d.list[d.idx - 1];
+        const next = d.list[d.idx];
+        const po = prev ? orderOf(prev.dataset.id) : null;
+        const no = next ? orderOf(next.dataset.id) : null;
+        const card = getCard(d.id);
+        const col = d.colEl.dataset.col;
+        if (card) {
+          const same = col === card.col && (po == null || po < card.order) && (no == null || no > card.order);
+          if (!same) {
+            const order = po != null && no != null ? (po + no) / 2 : po != null ? po + 1 : no != null ? no - 1 : 1;
+            onDrop(card, col, order);
+            return;
+          }
+        }
+      }
+      onEnd();
+    }
+    function orderOf(id) {
+      const c = getCard(id);
+      return c ? c.order : null;
+    }
+    function release(commit) {
+      if (pending) {
+        clearTimeout(pending.timer);
+        pending = null;
+      }
+      if (drag) finish(commit);
+    }
+    board.addEventListener("pointerdown", (e) => {
+      if (e.button > 0) return;
+      const el = e.target.closest(".card");
+      if (!el || e.target.closest("button,input,a")) return;
+      const p = { id: el.dataset.id, el, x: e.clientX, y: e.clientY, touch: e.pointerType !== "mouse", timer: null };
+      pending = p;
+      if (p.touch) {
+        p.timer = setTimeout(() => {
+          if (pending === p) start(p, p.x, p.y);
+        }, 230);
+      }
+    });
+    document.addEventListener("pointermove", (e) => {
+      if (drag) {
+        move(e.clientX, e.clientY);
+        return;
+      }
+      if (pending) {
+        const dx = e.clientX - pending.x;
+        const dy = e.clientY - pending.y;
+        if (Math.hypot(dx, dy) > 6) {
+          if (pending.touch) {
+            clearTimeout(pending.timer);
+            pending = null;
+          } else {
+            start(pending, e.clientX, e.clientY);
+          }
+        }
+      }
+    });
+    document.addEventListener("pointerup", () => release(true));
+    document.addEventListener("pointercancel", () => release(false));
+    document.addEventListener("touchmove", (e) => {
+      if (drag) e.preventDefault();
+    }, { passive: false });
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && drag) release(false);
+    });
+    board.addEventListener("contextmenu", (e) => {
+      if (e.target.closest(".card")) e.preventDefault();
+    });
+    return {
+      get active() {
+        return drag !== null;
+      },
+      get suppressClick() {
+        return suppress;
+      }
+    };
+  }
+
+  // src/core/stages.js
+  function attachStages({ board, stages, columns, count }) {
+    let raf = 0;
+    function render2() {
+      stages.innerHTML = columns.map((col) => `<button type="button" data-go="${col.id}" aria-current="false">${col.name} <span>${count(col)}</span></button>`).join("");
+    }
+    function sync() {
+      const cols = board.children;
+      const bl = board.getBoundingClientRect().left;
+      let best = 0;
+      let bd = 1e9;
+      for (let i = 0; i < cols.length; i++) {
+        const d = Math.abs(cols[i].getBoundingClientRect().left - bl);
+        if (d < bd) {
+          bd = d;
+          best = i;
+        }
+      }
+      if (board.scrollLeft + board.clientWidth >= board.scrollWidth - 4) best = cols.length - 1;
+      const btns = stages.children;
+      for (let j = 0; j < btns.length; j++) {
+        const on = j === best;
+        btns[j].setAttribute("aria-current", String(on));
+        if (on && board.clientWidth < board.scrollWidth) {
+          const l = btns[j].offsetLeft - 12;
+          if (Math.abs(stages.scrollLeft - l) > 40) stages.scrollLeft = l;
+        }
+      }
+    }
+    stages.addEventListener("click", (e) => {
+      const b = e.target.closest("[data-go]");
+      if (!b) return;
+      const col = board.querySelector('[data-col="' + b.dataset.go + '"]');
+      if (!col) return;
+      const left = col.getBoundingClientRect().left - board.getBoundingClientRect().left + board.scrollLeft - (parseFloat(getComputedStyle(board).paddingLeft) || 0);
+      const calm = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      board.scrollTo({ left, behavior: calm ? "auto" : "smooth" });
+    });
+    board.addEventListener(
+      "scroll",
+      () => {
+        if (raf) return;
+        raf = requestAnimationFrame(() => {
+          raf = 0;
+          sync();
+        });
+      },
+      { passive: true }
+    );
+    window.addEventListener("resize", sync);
+    return { render: render2, sync };
+  }
+
+  // src/core/model.js
+  var ID_OK = /^[A-Za-z0-9_\-.~:@+]{1,200}$/;
+  function normCommon(c, columns) {
+    c.title = String(c.title || "").slice(0, 120);
+    c.labels = Array.isArray(c.labels) ? c.labels.filter((l) => typeof l === "string" && l).slice(0, 8) : [];
+    c.order = num(c.order);
+    if (!columns.some((x) => x.id === c.col)) c.col = columns[0].id;
+    c.due = /^\d{4}-\d{2}-\d{2}$/.test(c.due || "") ? c.due : "";
+    c.sample = !!c.sample;
+    return c;
+  }
+  function colName(columns, id) {
+    const col = columns.find((x) => x.id === id);
+    return col ? col.name : id;
+  }
+  function diffCard(old, nw, { assignee = false } = {}) {
+    if (!old) return [{ type: "create", to: nw.col }];
+    const ev = [];
+    if (old.col !== nw.col) ev.push({ type: "move", from: old.col, to: nw.col });
+    if (old.pri !== nw.pri) ev.push({ type: "pri", from: old.pri, to: nw.pri });
+    if ((old.due || "") !== (nw.due || "")) ev.push({ type: "due", from: old.due || "", to: nw.due || "" });
+    if (assignee && (old.assignee || "") !== (nw.assignee || "")) {
+      ev.push({ type: "assignee", from: old.assignee || "", to: nw.assignee || "" });
+    }
+    return ev;
+  }
+  var safeId = (id) => typeof id === "string" && ID_OK.test(id) ? id : newId();
+  var cleanLabels = (list) => (Array.isArray(list) ? list : []).filter((l) => typeof l === "string" && l.trim()).map((l) => l.trim().slice(0, 16)).slice(0, 8);
+
+  // src/core/history-view.js
+  function dwell(ms) {
+    const d = Math.floor(ms / DAY);
+    if (d >= 1) return d + "\uC77C";
+    const h = Math.floor(ms / 36e5);
+    return h >= 1 ? h + "\uC2DC\uAC04" : "1\uC2DC\uAC04 \uBBF8\uB9CC";
+  }
+  function fmtTime(at) {
+    const d = new Date(at);
+    return pad(d.getMonth() + 1) + "/" + pad(d.getDate()) + " " + pad(d.getHours()) + ":" + pad(d.getMinutes());
+  }
+  function describe(e, { colName: colName2, priText }) {
+    switch (e.type) {
+      case "create":
+        return "\uCE74\uB4DC \uC0DD\uC131 \xB7 " + colName2(e.to);
+      case "move":
+        return colName2(e.from) + " \u2192 " + colName2(e.to);
+      case "pri":
+        return "\uC6B0\uC120\uC21C\uC704 " + (priText(e.from) || "\u2013") + " \u2192 " + (priText(e.to) || "\u2013");
+      case "assignee":
+        return "\uB2F4\uB2F9\uC790 " + (e.from || "\uBBF8\uBC30\uC815") + " \u2192 " + (e.to || "\uBBF8\uBC30\uC815");
+      default:
+        return "\uB9C8\uAC10\uC77C " + (e.from || "\uC5C6\uC74C") + " \u2192 " + (e.to || "\uC5C6\uC74C");
+    }
+  }
+  function renderHistory(box, list, opts) {
+    if (!list || !list.length) {
+      box.innerHTML = '<p class="hist-empty">\uC544\uC9C1 \uAE30\uB85D\uC774 \uC5C6\uC5B4\uC694. \uC55E\uC73C\uB85C\uC758 ' + esc(opts.tracked) + " \uBCC0\uACBD\uC774 \uC5EC\uAE30\uC5D0 \uC313\uC5EC\uC694.</p>";
+      return;
+    }
+    let enter = null;
+    const items = list.map((e) => {
+      let sub = "";
+      if (e.type === "create") {
+        enter = e.at;
+      } else if (e.type === "move") {
+        if (enter != null) sub = opts.colName(e.from) + " \uB2E8\uACC4\uC5D0 " + dwell(e.at - enter) + " \uBA38\uBB3E";
+        enter = e.at;
+      }
+      return "<li><time>" + fmtTime(e.at) + "</time><span>" + esc(describe(e, opts)) + "</span>" + (sub ? "<em>" + esc(sub) + "</em>" : "") + "</li>";
+    }).reverse();
+    const now = enter != null && opts.current ? '<p class="hist-now">\uD604\uC7AC ' + esc(opts.colName(opts.current.col)) + " \uB2E8\uACC4 " + dwell(Date.now() - enter) + "\uC9F8</p>" : "";
+    box.innerHTML = now + '<ol class="hist">' + items.join("") + "</ol>";
+  }
+
+  // src/core/editor.js
+  function attachEditor({ store, columns, labelHue: labelHue2, presetLabels, priText, tracked, hooks }) {
+    const els = {
+      scrim: $("#scrim"),
+      form: $("#form"),
+      head: $("#m-head"),
+      title: $("#f-title"),
+      col: $("#f-col"),
+      newLabel: $("#f-new"),
+      chips: $("#chips"),
+      histWrap: $("#hist-wrap"),
+      histBox: $("#hist-box"),
+      err: $("#m-err"),
+      del: $("#btn-del")
+    };
+    const selected = /* @__PURE__ */ new Set();
+    let editing = null;
+    let lastFocus = null;
+    let delArmed = false;
+    let delTimer = null;
+    els.col.innerHTML = columns.map((c) => `<option value="${c.id}">${c.name}</option>`).join("");
+    if (hooks.init) hooks.init();
+    function allLabels() {
+      const s = presetLabels.slice();
+      store.cards.forEach((c) => c.labels.forEach((l) => {
+        if (s.indexOf(l) < 0) s.push(l);
+      }));
+      selected.forEach((l) => {
+        if (s.indexOf(l) < 0) s.push(l);
+      });
+      return s;
+    }
+    function renderChips() {
+      els.chips.innerHTML = allLabels().map((l) => `<button type="button" class="chip" data-l="${esc(l)}" style="--h:${labelHue2(l)}" aria-pressed="${selected.has(l)}">${esc(l)}</button>`).join("");
+    }
+    function resetDel() {
+      delArmed = false;
+      clearTimeout(delTimer);
+      els.del.textContent = "\uC0AD\uC81C";
+      els.del.classList.remove("armed");
+    }
+    function open(id, col) {
+      editing = id ? store.find(id) || null : null;
+      const c = editing || { title: "", col: col || columns[0].id, labels: [], ...hooks.blank() };
+      selected.clear();
+      c.labels.forEach((l) => selected.add(l));
+      els.head.innerHTML = (editing ? "\uCE74\uB4DC \uD3B8\uC9D1" : "\uC0C8 \uCE74\uB4DC") + (editing && editing.key ? "<small>" + esc(editing.key) + "</small>" : "");
+      els.title.value = c.title;
+      els.col.value = c.col;
+      els.newLabel.value = "";
+      hooks.fill(c);
+      renderChips();
+      els.err.textContent = "";
+      els.histWrap.hidden = !editing;
+      if (editing) {
+        const hid = editing.id;
+        const show = (list) => {
+          if (editing && editing.id === hid) {
+            renderHistory(els.histBox, list, { colName: (x) => colName(columns, x), priText, current: editing, tracked });
+          }
+        };
+        els.histBox.innerHTML = '<p class="hist-empty">\uBD88\uB7EC\uC624\uB294 \uC911\u2026</p>';
+        store.history.fetch(hid).then(show).catch(() => show([]));
+      }
+      els.del.hidden = !editing;
+      resetDel();
+      lastFocus = document.activeElement;
+      els.scrim.hidden = false;
+      setTimeout(() => els.title.focus(), 0);
+    }
+    function close() {
+      els.scrim.hidden = true;
+      if (lastFocus && lastFocus.focus && document.contains(lastFocus)) lastFocus.focus();
+    }
+    function addLabel() {
+      const v = els.newLabel.value.trim();
+      if (!v) return;
+      selected.add(v);
+      els.newLabel.value = "";
+      renderChips();
+    }
+    els.chips.addEventListener("click", (e) => {
+      const b = e.target.closest(".chip");
+      if (!b) return;
+      const l = b.dataset.l;
+      if (selected.has(l)) selected.delete(l);
+      else selected.add(l);
+      renderChips();
+    });
+    els.newLabel.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        addLabel();
+      }
+    });
+    $("#f-new-btn").addEventListener("click", addLabel);
+    $("#btn-cancel").addEventListener("click", close);
+    els.scrim.addEventListener("pointerdown", (e) => {
+      if (e.target === els.scrim) close();
+    });
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && !els.scrim.hidden) close();
+    });
+    els.del.addEventListener("click", () => {
+      if (!delArmed) {
+        delArmed = true;
+        els.del.textContent = "\uC815\uB9D0 \uC0AD\uC81C\uD560\uAE4C\uC694?";
+        els.del.classList.add("armed");
+        clearTimeout(delTimer);
+        delTimer = setTimeout(resetDel, 3e3);
+        return;
+      }
+      const id = editing && editing.id;
+      close();
+      if (id) store.removeMany([id]);
+    });
+    els.form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const fail = (msg, focus) => {
+        els.err.textContent = msg;
+        if (focus) $(focus).focus();
+      };
+      const title = els.title.value.trim();
+      if (!title) return fail("\uC81C\uBAA9\uC744 \uC785\uB825\uD574 \uC8FC\uC138\uC694.", "#f-title");
+      const r = hooks.collect();
+      if (r.error) return fail(r.error, r.focus);
+      const col = els.col.value;
+      const base = { ...r.values, title, col, labels: Array.from(selected), sample: false };
+      let card;
+      if (editing) {
+        card = { ...editing, ...base };
+        if (col !== editing.col) card.order = store.nextOrder(col);
+      } else {
+        card = { id: newId(), order: store.nextOrder(col), ...hooks.newDefaults ? hooks.newDefaults(store.cards) : {}, ...base };
+      }
+      close();
+      await store.save(card);
+    });
+    return { open, close };
+  }
+
+  // src/core/dates.js
+  function today0() {
+    const d = /* @__PURE__ */ new Date();
+    d.setHours(0, 0, 0, 0);
+    return d;
+  }
+  function parseYmd(s) {
+    const p = s.split("-").map(Number);
+    return new Date(p[0], p[1] - 1, p[2]);
+  }
+  var ymd = (d) => d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate());
+  var md = (d) => pad(d.getMonth() + 1) + "/" + pad(d.getDate());
+  var diffDays = (s) => Math.round((parseYmd(s) - today0()) / DAY);
+  var tsYmd = (t) => t ? ymd(new Date(t)) : "";
+  function offsetDate(n) {
+    const d = new Date(today0().getTime() + n * DAY);
+    return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  }
+
+  // src/core/transfer.js
+  function attachTransfer({ store, columns, appId, filePrefix, csv: csv2, parse }) {
+    let dl = null;
+    let pendingImport = null;
+    (async () => {
+      try {
+        dl = await (window.claude && window.claude.use ? window.claude.use("downloads") : null);
+      } catch (e) {
+        dl = null;
+      }
+      if (!dl) {
+        $("#ex-json").hidden = true;
+        $("#ex-csv").hidden = true;
+      }
+    })();
+    const sorted = () => {
+      const idx = (id) => columns.findIndex((x) => x.id === id);
+      return store.cards.slice().sort((a, b) => idx(a.col) - idx(b.col) || a.order - b.order);
+    };
+    async function doExport(kind) {
+      if (!dl) return;
+      if (store.mode === "preview") {
+        toast("\uBD88\uB7EC\uC624\uB294 \uC911\uC774\uC5D0\uC694. \uC7A0\uC2DC \uD6C4 \uB2E4\uC2DC \uC2DC\uB3C4\uD574 \uC8FC\uC138\uC694.");
+        return;
+      }
+      const list = sorted();
+      const stamp = ymd(/* @__PURE__ */ new Date());
+      let name;
+      let data;
+      if (kind === "json") {
+        const cards = list.map((c) => {
+          const o = { ...c };
+          delete o.sample;
+          return o;
+        });
+        data = JSON.stringify({ app: appId, version: 1, exportedAt: (/* @__PURE__ */ new Date()).toISOString(), cards }, null, 2);
+        name = filePrefix + "-" + stamp + ".json";
+      } else {
+        const rows = [csv2.header, ...list.map(csv2.row)];
+        data = "\uFEFF" + rows.map((r) => r.map(csvCell).join(",")).join("\r\n");
+        name = filePrefix + "-" + stamp + ".csv";
+      }
+      try {
+        await dl.save({ filename: name, data });
+        toast("\uD30C\uC77C\uC744 \uC800\uC7A5\uD588\uC5B4\uC694.");
+      } catch (e) {
+        if (e && e.code === "declined") return;
+        toast("\uD30C\uC77C\uC744 \uC800\uC7A5\uD558\uC9C0 \uBABB\uD588\uC5B4\uC694.");
+      }
+    }
+    function showImportPanel() {
+      $("#im-panel").innerHTML = '<div class="im-box"><p>\uD30C\uC77C\uC5D0\uC11C \uCE74\uB4DC <b>' + pendingImport.length + '\uC7A5</b>\uC744 \uCC3E\uC558\uC5B4\uC694.</p><div class="db-btns"><button type="button" class="btn primary" data-im="merge">\uAE30\uC874 \uCE74\uB4DC\uC5D0 \uD569\uCE58\uAE30</button><button type="button" class="btn" data-im="replace">\uC804\uCCB4 \uAD50\uCCB4 (\uAE30\uC874 ' + esc(store.cards.length) + '\uC7A5 \uC0AD\uC81C)</button><button type="button" class="btn" data-im="cancel">\uCDE8\uC18C</button></div><p class="hint">\uD569\uCE58\uAE30\uB294 \uAC19\uC740 ID\uC758 \uCE74\uB4DC\uB97C \uB36E\uC5B4\uC4F0\uACE0 \uB098\uBA38\uC9C0\uB294 \uC0C8\uB85C \uCD94\uAC00\uD574\uC694.</p></div>';
+    }
+    $("#ex-json").addEventListener("click", () => doExport("json"));
+    $("#ex-csv").addEventListener("click", () => doExport("csv"));
+    $("#im-btn").addEventListener("click", () => $("#im-file").click());
+    $("#im-file").addEventListener("change", async (e) => {
+      const f = e.target.files && e.target.files[0];
+      e.target.value = "";
+      if (!f) return;
+      try {
+        if (f.size > 3 * 1024 * 1024) throw new Error("size");
+        const data = JSON.parse(await f.text());
+        const arr = Array.isArray(data) ? data : data && data.cards;
+        if (!Array.isArray(arr)) throw new Error("shape");
+        pendingImport = parse(arr, { cards: store.cards });
+        if (!pendingImport.length) {
+          toast("\uAC00\uC838\uC62C \uCE74\uB4DC\uB97C \uCC3E\uC9C0 \uBABB\uD588\uC5B4\uC694.");
+          return;
+        }
+        showImportPanel();
+      } catch (err) {
+        toast("\uD30C\uC77C\uC744 \uC77D\uC9C0 \uBABB\uD588\uC5B4\uC694. \uC774 \uBCF4\uB4DC\uC5D0\uC11C \uB0B4\uBCF4\uB0B8 JSON \uD30C\uC77C\uC778\uC9C0 \uD655\uC778\uD574 \uC8FC\uC138\uC694.");
+      }
+    });
+    $("#im-panel").addEventListener("click", (e) => {
+      const b = e.target.closest("[data-im]");
+      if (!b) return;
+      const act = b.dataset.im;
+      const ups = pendingImport || [];
+      pendingImport = null;
+      $("#im-panel").innerHTML = "";
+      if (act === "cancel" || !ups.length) return;
+      if (act === "replace") {
+        const keep = new Set(ups.map((c) => c.id));
+        store.bulkApply(ups, store.cards.filter((c) => !keep.has(c.id)).map((c) => c.id));
+      } else {
+        store.bulkApply(ups, []);
+      }
+    });
+  }
+
+  // src/core/app.js
+  function createApp(cfg) {
+    const boardEl = $("#board");
+    let clearArmed = false;
+    let clearTimer = null;
+    const store = createStore({
+      lsKey: cfg.lsKey,
+      norm: cfg.norm,
+      sample: cfg.sample,
+      diff: cfg.diff,
+      prepare: cfg.prepare,
+      saved: cfg.saved,
+      onChange: () => render2()
+    });
+    const filters = cfg.createFilters({ onChange: () => renderBoard() });
+    const drag = attachDrag({
+      board: boardEl,
+      getCard: (id) => store.find(id),
+      onDrop: (card, col, order) => store.save({ ...card, col, order }),
+      onEnd: () => render2()
+    });
+    const stages = attachStages({
+      board: boardEl,
+      stages: $("#stages"),
+      columns: cfg.columns,
+      count: (col) => store.cards.filter((c) => c.col === col.id && filters.visible(c)).length
+    });
+    const editor = attachEditor({
+      store,
+      columns: cfg.columns,
+      labelHue: cfg.labelHue,
+      presetLabels: cfg.presetLabels,
+      priText: cfg.priText,
+      tracked: cfg.historyTracked,
+      hooks: cfg.editor
+    });
+    attachTransfer({ store, columns: cfg.columns, appId: cfg.appId, filePrefix: cfg.filePrefix, csv: cfg.csv, parse: cfg.parseImport });
+    if (cfg.insights && cfg.insights.init) cfg.insights.init(() => store.cards);
+    function render2() {
+      if (drag.active) return;
+      if (filters.sync) filters.sync(store.cards);
+      renderSub2();
+      renderBanner();
+      renderBoard();
+      if (cfg.insights) cfg.insights.render(store.cards);
+    }
+    function renderSub2() {
+      let h = cfg.renderSub(store.cards);
+      if (store.mode === "local") h += '<span class="note">\uC774 \uAE30\uAE30\uC5D0\uB9CC \uC800\uC7A5 \uC911</span>';
+      if (store.mode === "preview") h += '<span class="note">\uBD88\uB7EC\uC624\uB294 \uC911\u2026</span>';
+      $("#sub").innerHTML = h;
+    }
+    function renderBanner() {
+      const b = $("#banner");
+      const ns = store.cards.filter((c) => c.sample).length;
+      if (store.mode === "preview") {
+        b.innerHTML = "";
+      } else if (store.cards.length === 0) {
+        b.innerHTML = '<div class="banner"><span>\uC544\uC9C1 \uCE74\uB4DC\uAC00 \uC5C6\uC5B4\uC694. \uC0C8 \uCE74\uB4DC\uB97C \uCD94\uAC00\uD558\uAC70\uB098 \uC608\uC2DC \uCE74\uB4DC\uB85C \uC2DC\uC791\uD574 \uBCF4\uC138\uC694.</span><button type="button" class="btn" id="seed">\uC608\uC2DC \uCE74\uB4DC\uB85C \uC2DC\uC791</button></div>';
+      } else if (ns > 0) {
+        b.innerHTML = '<div class="banner"><span>\uC608\uC2DC \uCE74\uB4DC ' + ns + '\uC7A5\uC774 \uB4E4\uC5B4 \uC788\uC5B4\uC694. \uC2E4\uC81C \uD504\uB85C\uC81D\uD2B8\uB97C \uC2DC\uC791\uD560 \uB54C \uC9C0\uC6B0\uC138\uC694.</span><button type="button" class="btn' + (clearArmed ? " danger armed" : "") + '" id="clear-sample">' + (clearArmed ? "\uC815\uB9D0 " + ns + "\uC7A5 \uC0AD\uC81C" : "\uC608\uC2DC \uCE74\uB4DC \uBAA8\uB450 \uC9C0\uC6B0\uAE30") + "</button></div>";
+      } else {
+        b.innerHTML = "";
+      }
+    }
+    function renderBoard() {
+      const ctx = cfg.beforeRender ? cfg.beforeRender(store.cards) : null;
+      boardEl.innerHTML = cfg.columns.map((col) => {
+        const all = store.cards.filter((c) => c.col === col.id).sort((a, b) => a.order - b.order);
+        const vis = all.filter(filters.visible);
+        const h = (cfg.colHeader ? cfg.colHeader(col, all, vis) : null) || {};
+        const count = h.count || (vis.length !== all.length ? vis.length + "/" + all.length : String(all.length));
+        return `<section class="col" data-col="${col.id}" aria-label="${col.name}"><header class="col-h"><h2>${col.name}</h2><span class="count${h.over ? " over" : ""}"${h.title ? ` title="${esc(h.title)}"` : ""}>${count}</span>${h.extra || ""}<button type="button" class="col-add" data-add="${col.id}" aria-label="${col.name}\uC5D0 \uCE74\uB4DC \uCD94\uAC00">+</button></header><div class="col-b">` + vis.map((c) => cfg.cardHtml(c, ctx)).join("") + (vis.length ? "" : '<p class="empty">\uCE74\uB4DC\uB97C \uC5EC\uAE30\uB85C \uB04C\uC5B4\uB2E4 \uB193\uC73C\uC138\uC694</p>') + "</div></section>";
+      }).join("");
+      stages.render();
+      stages.sync();
+    }
+    boardEl.addEventListener("click", (e) => {
+      if (drag.suppressClick || e.target.closest("a")) return;
+      const a = e.target.closest("[data-add]");
+      if (a) return editor.open(null, a.dataset.add);
+      const c = e.target.closest(".card");
+      if (c) editor.open(c.dataset.id);
+    });
+    boardEl.addEventListener("keydown", (e) => {
+      const c = e.target.closest(".card");
+      if (c && e.target === c && (e.key === "Enter" || e.key === " ")) {
+        e.preventDefault();
+        editor.open(c.dataset.id);
+      }
+    });
+    document.addEventListener("click", (e) => {
+      const b = e.target.closest("[data-edit]");
+      if (b) editor.open(b.dataset.edit);
+    });
+    $("#add").addEventListener("click", () => editor.open(null, cfg.columns[0].id));
+    $("#banner").addEventListener("click", async (e) => {
+      if (e.target.closest("#seed")) {
+        await store.seed();
+        return;
+      }
+      if (e.target.closest("#clear-sample")) {
+        if (!clearArmed) {
+          clearArmed = true;
+          renderBanner();
+          clearTimeout(clearTimer);
+          clearTimer = setTimeout(() => {
+            clearArmed = false;
+            renderBanner();
+          }, 3e3);
+          return;
+        }
+        clearArmed = false;
+        clearTimeout(clearTimer);
+        const ok = await store.removeMany(store.cards.filter((c) => c.sample).map((c) => c.id));
+        if (ok) toast("\uC608\uC2DC \uCE74\uB4DC\uB97C \uC9C0\uC6E0\uC5B4\uC694.");
+      }
+    });
+    render2();
+    store.init();
+  }
+
+  // src/boards/dev/model.js
+  var COLS = [
+    { id: "backlog", name: "\uBC31\uB85C\uADF8" },
+    { id: "todo", name: "\uD560 \uC77C" },
+    { id: "doing", name: "\uC9C4\uD589 \uC911", wip: 4 },
+    { id: "review", name: "\uB9AC\uBDF0", wip: 3 },
+    { id: "done", name: "\uC644\uB8CC" }
+  ];
+  var PRI = { p0: "P0", p1: "P1", p2: "P2", p3: "P3" };
+  var PRIN = { p0: "\uAE34\uAE09", p1: "\uB192\uC74C", p2: "\uBCF4\uD1B5", p3: "\uB0AE\uC74C" };
+  var TYPES = {
+    feature: { n: "\uAE30\uB2A5", h: 218 },
+    bug: { n: "\uBC84\uADF8", h: 350 },
+    chore: { n: "\uAE30\uC220\uBD80\uCC44", h: 38 },
+    infra: { n: "\uC778\uD504\uB77C", h: 168 }
+  };
+  var PTS = [1, 2, 3, 5, 8, 13];
+  var PRESET = ["\uD504\uB860\uD2B8", "\uBC31\uC5D4\uB4DC", "API", "DB", "CI/CD", "\uBCF4\uC548", "\uB514\uC790\uC778"];
+  var labelHue = hashHue;
+  var colDef = (id) => COLS.find((c) => c.id === id) || COLS[0];
+  function norm(c) {
+    normCommon(c, COLS);
+    if (!PRI[c.pri]) c.pri = "p2";
+    if (!TYPES[c.type]) c.type = "feature";
+    c.pts = Math.max(0, Math.floor(num(c.pts)));
+    c.assignee = String(c.assignee || "").trim().slice(0, 12);
+    c.link = /^https?:\/\//i.test(c.link || "") ? String(c.link).slice(0, 500) : "";
+    c.blocked = !!c.blocked;
+    c.createdAt = num(c.createdAt) || null;
+    c.startedAt = num(c.startedAt) || null;
+    c.doneAt = num(c.doneAt) || null;
+    c.key = c.key ? String(c.key).slice(0, 20) : "";
+    return c;
+  }
+  var diff = (old, nw) => diffCard(old, nw, { assignee: true });
+  function prepare(old, nw) {
+    const n = { ...nw };
+    const now = Date.now();
+    if (!n.createdAt) n.createdAt = now;
+    if (old && old.col !== n.col) {
+      if (n.col === "doing" && !n.startedAt) n.startedAt = now;
+      if (n.col === "done") n.doneAt = now;
+      else if (old.col === "done") n.doneAt = null;
+    } else if (!old) {
+      if (n.col === "doing" && !n.startedAt) n.startedAt = now;
+      if (n.col === "done" && !n.doneAt) n.doneAt = now;
+    }
+    return n;
+  }
+  function nextKey(cards) {
+    let m = 0;
+    cards.forEach((c) => {
+      const r = /^DEV-(\d+)$/.exec(c.key || "");
+      if (r && +r[1] > m) m = +r[1];
+    });
+    return "DEV-" + (m + 1);
+  }
+
+  // src/boards/dev/card.js
+  function dueInfo(c) {
+    if (c.col === "done") return c.doneAt ? { cls: "done", text: "\uC644\uB8CC " + md(new Date(c.doneAt)) } : null;
+    if (!c.due) return null;
+    const m = c.due.slice(5).replace("-", "/");
+    const d = diffDays(c.due);
+    if (d < 0) return { cls: "late", text: "D+" + -d + " \uC9C0\uC5F0 \xB7 " + m };
+    if (d === 0) return { cls: "today", text: "\uC624\uB298 \xB7 " + m };
+    return { cls: d <= 3 ? "soon" : "", text: "D-" + d + " \xB7 " + m };
+  }
+  function linkLabel(u) {
+    try {
+      const x = new URL(u);
+      const m = x.pathname.match(/\/(pull|issues|merge_requests)\/(\d+)/);
+      if (m) return (m[1] === "issues" ? "\uC774\uC288" : m[1] === "pull" ? "PR" : "MR") + " #" + m[2];
+      return x.hostname.replace(/^www\./, "");
+    } catch (e) {
+      return "\uB9C1\uD06C";
+    }
+  }
+  var avatar = (n) => n ? `<span class="av" style="--h:${labelHue(n)}">${esc(Array.from(n)[0].toUpperCase())}</span>` : '<span class="av none">?</span>';
+  function cardHtml(c) {
+    const d = dueInfo(c);
+    const t = TYPES[c.type];
+    const meta = `<span class="as">${avatar(c.assignee)}${c.assignee ? esc(c.assignee) : "\uBBF8\uBC30\uC815"}</span>` + (c.pts ? `<span class="pt" title="\uD3EC\uC778\uD2B8">${c.pts}</span>` : "") + (d ? `<span class="due ${d.cls}">${d.text}</span>` : "") + (c.link ? `<a class="lk" href="${esc(c.link)}" target="_blank" rel="noopener noreferrer">\u2197 ${esc(linkLabel(c.link))}</a>` : "");
+    const labels = c.labels.length ? '<div class="labels">' + c.labels.map((l) => `<span class="lb" style="--h:${labelHue(l)}">${esc(l)}</span>`).join("") + "</div>" : "";
+    return `<article class="card${c.blocked ? " is-blocked" : ""}" data-id="${esc(c.id)}" tabindex="0" aria-label="${esc((c.key ? c.key + " " : "") + c.title)}, ${PRI[c.pri]} ${PRIN[c.pri]}${c.blocked ? ", \uB9C9\uD798" : ""}"><div class="c-top">${c.key ? `<span class="key">${esc(c.key)}</span>` : ""}<span class="tp" style="--h:${t.h}">${t.n}</span>${c.blocked ? '<span class="blk-t">\uB9C9\uD798</span>' : ""}<span class="pri ${c.pri}" title="${PRIN[c.pri]}">${PRI[c.pri]}</span></div><h3 class="title">${esc(c.title)}</h3><div class="meta">${meta}</div>${labels}</article>`;
+  }
+
+  // src/boards/dev/data.js
+  var SRC = [
+    { k: 1, t: "\uD504\uB85C\uC81D\uD2B8 \uCD08\uAE30 \uC124\uC815\xB7\uB9B0\uD2B8 \uADDC\uCE59", c: "done", p: "p2", ty: "infra", a: "\uC9C0\uD638", pt: 2, d: null, l: "", b: false, lb: ["CI/CD"], cr: -28, st: -26, dn: -22 },
+    { k: 2, t: "\uD68C\uC6D0\uAC00\uC785 API", c: "done", p: "p1", ty: "feature", a: "\uC11C\uC5F0", pt: 5, d: null, l: "https://github.com/acme/app/pull/31", b: false, lb: ["\uBC31\uC5D4\uB4DC", "API"], cr: -26, st: -23, dn: -17 },
+    { k: 3, t: "\uB85C\uADF8\uC778 \uD654\uBA74 UI", c: "done", p: "p1", ty: "feature", a: "\uD558\uC740", pt: 3, d: null, l: "", b: false, lb: ["\uD504\uB860\uD2B8"], cr: -25, st: -21, dn: -15 },
+    { k: 4, t: "\uBC30\uD3EC \uD30C\uC774\uD504\uB77C\uC778 \uAD6C\uCD95", c: "done", p: "p1", ty: "infra", a: "\uC9C0\uD638", pt: 8, d: null, l: "", b: false, lb: ["CI/CD"], cr: -24, st: -20, dn: -11 },
+    { k: 5, t: "\uBE44\uBC00\uBC88\uD638 \uC7AC\uC124\uC815 \uBA54\uC77C \uBBF8\uBC1C\uC1A1", c: "done", p: "p0", ty: "bug", a: "\uBBFC\uC900", pt: 1, d: null, l: "https://github.com/acme/app/issues/44", b: false, lb: ["\uBC31\uC5D4\uB4DC"], cr: -9, st: -8, dn: -7 },
+    { k: 6, t: "\uC54C\uB9BC \uC124\uC815 \uD654\uBA74", c: "done", p: "p2", ty: "feature", a: "\uD558\uC740", pt: 3, d: null, l: "", b: false, lb: ["\uD504\uB860\uD2B8"], cr: -16, st: -11, dn: -4 },
+    { k: 7, t: "\uC5D0\uB7EC \uB85C\uAE45 \uC5F0\uB3D9", c: "done", p: "p2", ty: "infra", a: "\uC11C\uC5F0", pt: 2, d: null, l: "", b: false, lb: ["\uBC31\uC5D4\uB4DC"], cr: -12, st: -6, dn: -2 },
+    { k: 8, t: "\uD504\uB85C\uD544 \uC774\uBBF8\uC9C0 \uC5C5\uB85C\uB4DC", c: "review", p: "p2", ty: "feature", a: "\uD558\uC740", pt: 5, d: 1, l: "https://github.com/acme/app/pull/142", b: false, lb: ["\uD504\uB860\uD2B8", "\uBC31\uC5D4\uB4DC"], cr: -14, st: -8, dn: null },
+    { k: 9, t: "\uC138\uC158 \uB9CC\uB8CC \uCC98\uB9AC \uB9AC\uD329\uD130\uB9C1", c: "review", p: "p2", ty: "chore", a: "\uBBFC\uC900", pt: 3, d: -1, l: "https://github.com/acme/app/pull/139", b: false, lb: ["\uBC31\uC5D4\uB4DC"], cr: -13, st: -7, dn: null },
+    { k: 10, t: "\uAC80\uC0C9 API \uD398\uC774\uC9C0\uB124\uC774\uC158", c: "doing", p: "p1", ty: "feature", a: "\uBBFC\uC900", pt: 5, d: 3, l: "", b: false, lb: ["\uBC31\uC5D4\uB4DC", "API"], cr: -15, st: -3, dn: null },
+    { k: 11, t: "\uB85C\uADF8\uC778 \uC2E4\uD328 \uC2DC 500 \uC751\uB2F5", c: "doing", p: "p0", ty: "bug", a: "\uC11C\uC5F0", pt: 2, d: 0, l: "https://github.com/acme/app/issues/57", b: false, lb: ["\uBC31\uC5D4\uB4DC"], cr: -2, st: -1, dn: null },
+    { k: 12, t: "CI \uCE90\uC2DC \uC124\uC815\uC73C\uB85C \uBE4C\uB4DC \uC2DC\uAC04 \uB2E8\uCD95", c: "doing", p: "p2", ty: "infra", a: "\uC9C0\uD638", pt: 3, d: 5, l: "", b: true, lb: ["CI/CD"], cr: -10, st: -4, dn: null },
+    { k: 13, t: "\uACB0\uC81C \uC6F9\uD6C5 \uC7AC\uC2DC\uB3C4 \uB85C\uC9C1", c: "todo", p: "p1", ty: "feature", a: "\uC11C\uC5F0", pt: 5, d: 4, l: "", b: false, lb: ["\uBC31\uC5D4\uB4DC", "API"], cr: -12, st: null, dn: null },
+    { k: 14, t: "\uBAA8\uBC14\uC77C \uBA54\uB274 \uD3EC\uCEE4\uC2A4 \uC774\uB3D9 \uC624\uB958", c: "todo", p: "p1", ty: "bug", a: "\uC9C0\uD638", pt: 2, d: 2, l: "https://github.com/acme/app/issues/61", b: false, lb: ["\uD504\uB860\uD2B8"], cr: -3, st: null, dn: null },
+    { k: 15, t: "\uB9B4\uB9AC\uC2A4 \uB178\uD2B8 \uC790\uB3D9 \uC0DD\uC131", c: "todo", p: "p3", ty: "infra", a: "\uD558\uC740", pt: 3, d: 9, l: "", b: false, lb: ["CI/CD"], cr: -8, st: null, dn: null },
+    { k: 16, t: "OAuth \uC18C\uC15C \uB85C\uADF8\uC778", c: "backlog", p: "p2", ty: "feature", a: "", pt: 8, d: null, l: "", b: false, lb: ["\uBC31\uC5D4\uB4DC", "\uBCF4\uC548"], cr: -9, st: null, dn: null },
+    { k: 17, t: "\uB300\uC2DC\uBCF4\uB4DC \uCC28\uD2B8 \uB85C\uB529 \uC131\uB2A5 \uAC1C\uC120", c: "backlog", p: "p3", ty: "chore", a: "", pt: 5, d: null, l: "", b: false, lb: ["\uD504\uB860\uD2B8"], cr: -6, st: null, dn: null },
+    { k: 18, t: "\uC2A4\uD14C\uC774\uC9D5 DB \uBC31\uC5C5 \uC790\uB3D9\uD654", c: "backlog", p: "p2", ty: "infra", a: "", pt: 3, d: null, l: "", b: false, lb: ["DB", "CI/CD"], cr: -4, st: null, dn: null }
+  ];
+  function sampleCards() {
+    const now = Date.now();
+    const rel = (n) => n == null ? null : now + n * DAY;
+    const seen = {};
+    return SRC.map((s) => {
+      seen[s.c] = (seen[s.c] || 0) + 1;
+      return norm({
+        id: "s" + s.k,
+        key: "DEV-" + s.k,
+        title: s.t,
+        col: s.c,
+        pri: s.p,
+        type: s.ty,
+        assignee: s.a,
+        pts: s.pt,
+        due: s.d == null ? "" : ymd(offsetDate(s.d)),
+        link: s.l,
+        blocked: s.b,
+        labels: s.lb,
+        order: seen[s.c],
+        createdAt: rel(s.cr),
+        startedAt: rel(s.st),
+        doneAt: rel(s.dn),
+        sample: true
+      });
+    });
+  }
+
+  // src/boards/dev/editor.js
+  var editorHooks = {
+    init() {
+      $("#f-type").innerHTML = Object.keys(TYPES).map((k) => `<option value="${k}">${TYPES[k].n}</option>`).join("");
+      $("#f-pts").innerHTML = '<option value="0">\uC5C6\uC74C</option>' + PTS.map((p) => `<option value="${p}">${p}</option>`).join("");
+    },
+    blank: () => ({ type: "feature", pri: "p2", assignee: "", pts: 0, due: "", link: "", blocked: false }),
+    fill(c) {
+      $("#f-type").value = c.type;
+      $("#f-as").value = c.assignee;
+      $("#f-pts").value = String(c.pts || 0);
+      $("#f-due").value = c.due || "";
+      $("#f-link").value = c.link || "";
+      $("#f-blk").checked = !!c.blocked;
+      document.querySelectorAll('input[name="pri"]').forEach((r) => {
+        r.checked = r.value === c.pri;
+      });
+    },
+    collect() {
+      const link = $("#f-link").value.trim();
+      if (link && !/^https?:\/\/\S+$/i.test(link)) {
+        return { error: "\uB9C1\uD06C\uB294 http:// \uB610\uB294 https://\uB85C \uC2DC\uC791\uD574\uC57C \uD574\uC694.", focus: "#f-link" };
+      }
+      const pri = (document.querySelector('input[name="pri"]:checked') || { value: "p2" }).value;
+      return {
+        values: {
+          type: $("#f-type").value,
+          pri,
+          assignee: $("#f-as").value.trim(),
+          pts: parseInt($("#f-pts").value, 10) || 0,
+          due: $("#f-due").value || "",
+          link,
+          blocked: $("#f-blk").checked
+        }
+      };
+    },
+    // 새 카드에만 붙는 값: 다음 DEV-n 키
+    newDefaults: (cards) => ({ key: nextKey(cards) })
+  };
+
+  // src/boards/dev/filters.js
+  function createFilters({ onChange }) {
+    const flt = { q: "", a: "all", t: "all", b: false };
+    $("#ft").innerHTML = '<option value="all">\uC720\uD615 \uC804\uCCB4</option>' + Object.keys(TYPES).map((k) => `<option value="${k}">${TYPES[k].n}</option>`).join("");
+    $("#q").addEventListener("input", (e) => {
+      flt.q = e.target.value.trim().toLowerCase();
+      onChange();
+    });
+    $("#fa").addEventListener("change", (e) => {
+      flt.a = e.target.value;
+      onChange();
+    });
+    $("#ft").addEventListener("change", (e) => {
+      flt.t = e.target.value;
+      onChange();
+    });
+    $("#fb").addEventListener("click", (e) => {
+      flt.b = !flt.b;
+      e.currentTarget.setAttribute("aria-pressed", String(flt.b));
+      onChange();
+    });
+    return {
+      visible(c) {
+        if (flt.a !== "all") {
+          if (flt.a === "__none") {
+            if (c.assignee) return false;
+          } else if (c.assignee !== flt.a) return false;
+        }
+        if (flt.t !== "all" && c.type !== flt.t) return false;
+        if (flt.b && !c.blocked) return false;
+        if (flt.q && (c.title + " " + c.key + " " + c.assignee + " " + c.labels.join(" ")).toLowerCase().indexOf(flt.q) < 0) return false;
+        return true;
+      },
+      // 카드에 있는 담당자 이름으로 필터 목록과 편집창 자동완성을 갱신한다.
+      sync(cards) {
+        const names = [];
+        cards.forEach((c) => {
+          if (c.assignee && names.indexOf(c.assignee) < 0) names.push(c.assignee);
+        });
+        names.sort();
+        if (flt.a !== "all" && flt.a !== "__none" && names.indexOf(flt.a) < 0) flt.a = "all";
+        const fa = $("#fa");
+        fa.innerHTML = '<option value="all">\uB2F4\uB2F9\uC790 \uC804\uCCB4</option><option value="__none">\uBBF8\uBC30\uC815</option>' + names.map((n) => `<option value="${esc(n)}">${esc(n)}</option>`).join("");
+        fa.value = flt.a;
+        $("#as-list").innerHTML = names.map((n) => `<option value="${esc(n)}">`).join("");
+      }
+    };
+  }
+
+  // src/boards/dev/insights.js
+  var fmtN = (v) => Number.isInteger(v) ? String(v) : v.toFixed(1);
+  var getCards = () => [];
+  var resizeTimer = 0;
+  function render(cards) {
+    const now = Date.now();
+    const open = cards.filter((c) => c.col !== "done");
+    const done = cards.filter((c) => c.col === "done");
+    const remain = sum(open, (c) => c.pts);
+    const doingN = cards.filter((c) => c.col === "doing").length;
+    const wip = colDef("doing").wip;
+    const cyc = done.filter((c) => c.startedAt && c.doneAt && c.doneAt >= c.startedAt).map((c) => (c.doneAt - c.startedAt) / DAY);
+    const avgCyc = cyc.length ? sum(cyc, (x) => x) / cyc.length : null;
+    const last7 = sum(done.filter((c) => c.doneAt && now - c.doneAt < 7 * DAY), (c) => c.pts);
+    const summary = `<div class="p-sum"><div><span>\uB0A8\uC740 \uD3EC\uC778\uD2B8</span><strong>${remain}<small>pt</small></strong></div><div><span>\uC9C4\uD589 \uC911 / WIP \uD55C\uB3C4</span><strong class="${doingN > wip ? "bad" : ""}">${doingN}<small>/ ${wip}</small></strong></div><div><span>\uD3C9\uADE0 \uC0AC\uC774\uD074 \uD0C0\uC784</span><strong>${avgCyc == null ? "\u2013" : fmtN(Math.round(avgCyc * 10) / 10) + "<small>\uC77C</small>"}</strong></div><div><span>\uCD5C\uADFC 7\uC77C \uC644\uB8CC</span><strong>${last7}<small>pt</small></strong></div></div>`;
+    const total = sum(cards, (c) => c.pts);
+    const ptsOf = (col) => sum(cards.filter((c) => c.col === col.id), (c) => c.pts);
+    const dist = "<div><h3>\uC5F4\uBCC4 \uD3EC\uC778\uD2B8 \uBD84\uD3EC</h3>" + (total ? '<div class="dist" role="img" aria-label="\uC5F4\uBCC4 \uD3EC\uC778\uD2B8 \uBD84\uD3EC">' + COLS.map((col, i) => ptsOf(col) ? `<i style="flex:${ptsOf(col)};background:var(--c${i + 1})" title="${col.name} ${ptsOf(col)}pt"></i>` : "").join("") + '</div><div class="legend">' + COLS.map((col, i) => `<span><i style="background:var(--c${i + 1})"></i>${col.name} <b>${ptsOf(col)}pt</b></span>`).join("") + "</div>" : '<p class="flow-empty">\uCE74\uB4DC\uC5D0 \uD3EC\uC778\uD2B8\uB97C \uC785\uB825\uD558\uBA74 \uBD84\uD3EC\uAC00 \uD45C\uC2DC\uB3FC\uC694.</p>') + "</div>";
+    const buckets = [0, 0, 0, 0];
+    const counts = [0, 0, 0, 0];
+    done.forEach((c) => {
+      if (!c.doneAt) return;
+      const b = Math.floor((now - c.doneAt) / (7 * DAY));
+      if (b >= 0 && b < 4) {
+        buckets[b] += c.pts;
+        counts[b]++;
+      }
+    });
+    const mx = Math.max(1, ...buckets);
+    const names = ["\uCD5C\uADFC 7\uC77C", "7~14\uC77C \uC804", "14~21\uC77C \uC804", "21~28\uC77C \uC804"];
+    const tp = '<div><h3>\uC8FC\uAC04 \uCC98\uB9AC\uB7C9</h3><div class="tp-rows">' + [3, 2, 1, 0].map(
+      (b) => `<div class="tp-row"><div class="l"><span>${names[b]}</span><span><b>${buckets[b]}pt</b> \xB7 ${counts[b]}\uAC74</span></div><div class="b"><i style="width:${buckets[b] ? (buckets[b] / mx * 100).toFixed(1) : 0}%"></i></div></div>`
+    ).join("") + "</div></div>";
+    $("#flow").innerHTML = "<h2>\uD750\uB984 \uC9C0\uD45C</h2>" + summary + dist + '<div class="flow-grid"><div><h3>\uB0A8\uC740 \uD3EC\uC778\uD2B8 \uCD94\uC774 (14\uC77C)</h3><div id="trend"></div></div>' + tp + "</div>";
+    drawTrend();
+  }
+  function drawTrend() {
+    const box = $("#trend");
+    if (!box) return;
+    const W = Math.floor(box.clientWidth);
+    if (W < 120) return;
+    const cards = getCards();
+    const H = 176, L = 38, R = 14, T = 16, B = 24;
+    const t0 = today0().getTime();
+    const vals = [];
+    for (let i = 13; i >= 0; i--) {
+      const end = t0 - i * DAY + DAY - 1;
+      vals.push(sum(cards, (c) => (c.createdAt || 0) <= end && (!c.doneAt || c.doneAt > end) ? c.pts : 0));
+    }
+    const mx = Math.max(...vals);
+    if (!mx) {
+      box.innerHTML = '<p class="flow-empty">\uD3EC\uC778\uD2B8\uAC00 \uC788\uB294 \uCE74\uB4DC\uAC00 \uC0DD\uAE30\uBA74 \uCD94\uC774\uAC00 \uD45C\uC2DC\uB3FC\uC694.</p>';
+      return;
+    }
+    const top = niceMax(mx);
+    const pw = W - L - R;
+    const ph = H - T - B;
+    const X = (i) => L + pw * i / 13;
+    const Y = (v) => T + ph * (1 - v / top);
+    const pts = vals.map((v, i) => X(i).toFixed(1) + "," + Y(v).toFixed(1));
+    let s = `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-label="\uCD5C\uADFC 14\uC77C \uB0A8\uC740 \uD3EC\uC778\uD2B8 \uCD94\uC774, \uD604\uC7AC ${vals[13]}\uD3EC\uC778\uD2B8">`;
+    [0, top / 2, top].forEach((v) => {
+      s += `<line class="gl" x1="${L}" x2="${W - R}" y1="${Y(v).toFixed(1)}" y2="${Y(v).toFixed(1)}"/><text class="ax" x="${L - 6}" y="${(Y(v) + 4).toFixed(1)}" text-anchor="end">${fmtN(v)}</text>`;
+    });
+    s += `<path class="area" d="M${X(0).toFixed(1)},${Y(0).toFixed(1)} L${pts.join(" L")} L${X(13).toFixed(1)},${Y(0).toFixed(1)} Z"/>`;
+    s += `<path class="ln" d="M${pts.join(" L")}"/>`;
+    [[0, "start"], [6, "middle"], [13, "end"]].forEach((p) => {
+      s += `<text class="ax" x="${X(p[0]).toFixed(1)}" y="${H - 6}" text-anchor="${p[1]}">${md(new Date(t0 - (13 - p[0]) * DAY))}</text>`;
+    });
+    s += `<circle class="dot" cx="${X(13).toFixed(1)}" cy="${Y(vals[13]).toFixed(1)}" r="4.5"/>`;
+    s += `<text class="endv" x="${(X(13) - 8).toFixed(1)}" y="${(Y(vals[13]) - 9).toFixed(1)}" text-anchor="end">${vals[13]}pt</text></svg>`;
+    box.innerHTML = s;
+  }
+  var insights = {
+    init(cardsGetter) {
+      getCards = cardsGetter;
+      window.addEventListener("resize", () => {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(drawTrend, 120);
+      });
+    },
+    render
+  };
+
+  // src/boards/dev/transfer.js
+  var csv = {
+    header: ["\uD0A4", "\uC81C\uBAA9", "\uB2E8\uACC4", "\uC720\uD615", "\uC6B0\uC120\uC21C\uC704", "\uB2F4\uB2F9\uC790", "\uD3EC\uC778\uD2B8", "\uB9C8\uAC10\uC77C", "\uB9C9\uD798", "\uB9C1\uD06C", "\uB77C\uBCA8", "\uC0DD\uC131\uC77C", "\uC2DC\uC791\uC77C", "\uC644\uB8CC\uC77C"],
+    row: (c) => [
+      c.key,
+      c.title,
+      colName(COLS, c.col),
+      TYPES[c.type].n,
+      PRI[c.pri],
+      c.assignee,
+      c.pts || "",
+      c.due,
+      c.blocked ? "Y" : "",
+      c.link,
+      c.labels.join(";"),
+      tsYmd(c.createdAt),
+      tsYmd(c.startedAt),
+      tsYmd(c.doneAt)
+    ]
+  };
+  function parseImport(arr, { cards }) {
+    const map = /* @__PURE__ */ new Map();
+    let maxKey = 0;
+    cards.forEach((c) => {
+      const r = /^DEV-(\d+)$/.exec(c.key || "");
+      if (r && +r[1] > maxKey) maxKey = +r[1];
+    });
+    arr.slice(0, 2e3).forEach((x, i) => {
+      if (!x || typeof x !== "object" || typeof x.title !== "string" || !x.title.trim()) return;
+      const c = norm({
+        id: safeId(x.id),
+        key: typeof x.key === "string" ? x.key : "",
+        title: x.title.trim(),
+        col: x.col,
+        pri: x.pri,
+        type: x.type,
+        assignee: x.assignee,
+        pts: x.pts,
+        due: x.due,
+        link: x.link,
+        blocked: x.blocked,
+        labels: cleanLabels(x.labels),
+        order: +x.order || i + 1,
+        createdAt: x.createdAt || Date.now(),
+        startedAt: x.startedAt,
+        doneAt: x.doneAt,
+        sample: false
+      });
+      if (!c.key) c.key = "DEV-" + ++maxKey;
+      map.set(c.id, c);
+    });
+    return Array.from(map.values());
+  }
+
+  // src/boards/dev/config.js
+  function renderSub(cards) {
+    const open = cards.filter((c) => c.col !== "done");
+    let late = 0;
+    let blocked = 0;
+    open.forEach((c) => {
+      if (c.due && diffDays(c.due) < 0) late++;
+      if (c.blocked) blocked++;
+    });
+    let h = `<span>\uCE74\uB4DC <b>${cards.length}</b></span><span>\uC9C4\uD589 \uC911 <b>${cards.filter((c) => c.col === "doing").length}</b></span><span>\uB0A8\uC740 \uD3EC\uC778\uD2B8 <b>${sum(open, (c) => c.pts)}</b></span>`;
+    if (blocked) h += `<span class="blk">\uB9C9\uD798 ${blocked}</span>`;
+    if (late) h += `<span class="late">\uC9C0\uC5F0 ${late}</span>`;
+    return h;
+  }
+  function colHeader(col, all, vis) {
+    const over = !!col.wip && all.length > col.wip;
+    const count = vis.length !== all.length ? vis.length + "/" + all.length : col.wip ? all.length + "/" + col.wip : String(all.length);
+    return {
+      count,
+      over,
+      title: col.wip ? "WIP \uD55C\uB3C4 " + col.wip : "",
+      extra: `<span class="col-pts">${sum(all, (c) => c.pts)}pt</span>` + (over ? '<span class="wip-flag">WIP \uCD08\uACFC</span>' : "")
+    };
+  }
+  function saved(old, nw, cards) {
+    const cd = colDef(nw.col);
+    if (cd.wip && (!old || old.col !== nw.col)) {
+      const n = cards.filter((c) => c.col === nw.col).length;
+      if (n > cd.wip) toast(cd.name + " \uC5F4\uC774 WIP \uD55C\uB3C4(" + cd.wip + ")\uB97C \uB118\uC5C8\uC5B4\uC694.");
+    }
+  }
+  var config_default = {
+    lsKey: "dev-board-v1",
+    appId: "dev-board",
+    filePrefix: "dev-board",
+    columns: COLS,
+    norm,
+    sample: sampleCards,
+    diff,
+    prepare,
+    saved,
+    labelHue,
+    presetLabels: PRESET,
+    priText: (v) => PRI[v],
+    historyTracked: "\uB2E8\uACC4 \uC774\uB3D9, \uC6B0\uC120\uC21C\uC704\xB7\uB9C8\uAC10\uC77C\xB7\uB2F4\uB2F9\uC790",
+    createFilters,
+    renderSub,
+    colHeader,
+    cardHtml,
+    insights,
+    editor: editorHooks,
+    csv,
+    parseImport
+  };
+
+  // src/boards/dev/main.js
+  createApp(config_default);
+})();
+</script>

@@ -1,0 +1,15 @@
+{
+  "name": "kanban-boards",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Claude 아티팩트용 칸반 보드 (콘텐츠 보드, 개발 프로젝트 보드). 공통 core 모듈 + 보드별 설정으로 구성하고 단일 HTML로 빌드한다.",
+  "scripts": {
+    "build": "node build.mjs",
+    "test": "node build.mjs && node tests/smoke.mjs"
+  },
+  "devDependencies": {
+    "esbuild": "^0.28.2",
+    "jsdom": "^31.0.0"
+  }
+}

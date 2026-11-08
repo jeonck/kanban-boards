@@ -1,0 +1,11 @@
+/* 편집창: 우선순위 선택 (라디오를 버튼처럼 표시) */
+.pri-pick{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.pri-pick label{position:relative}
+.pri-pick input{position:absolute;opacity:0;inset:0}
+.pri-pick span{display:flex;justify-content:center;align-items:center;gap:7px;height:38px;border-radius:9px;border:1px solid var(--line);font-weight:600;font-size:13px}
+.pri-pick .high{color:var(--hi)}.pri-pick .mid{color:var(--md)}.pri-pick .low{color:var(--lo)}
+.pri-pick .high .lv b,.pri-pick .mid .lv b:nth-child(-n+2),.pri-pick .low .lv b:nth-child(1){opacity:1}
+.pri-pick input:checked+span.high{background:var(--hi-bg);border-color:var(--hi)}
+.pri-pick input:checked+span.mid{background:var(--md-bg);border-color:var(--md)}
+.pri-pick input:checked+span.low{background:var(--lo-bg);border-color:var(--lo)}
+.pri-pick input:focus-visible+span{outline:2px solid var(--accent);outline-offset:2px}

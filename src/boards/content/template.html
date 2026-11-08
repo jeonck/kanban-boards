@@ -1,0 +1,37 @@
+<title>콘텐츠 보드</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap">
+<!--@css-->
+
+<div class="wrap">
+  <header class="top">
+    <div class="top-r1">
+      <div>
+        <h1>콘텐츠 보드</h1>
+        <p class="sub" id="sub"></p>
+      </div>
+      <button type="button" class="btn primary" id="add">+ 새 카드</button>
+    </div>
+    <div class="tools">
+      <input class="in" id="q" type="search" placeholder="카드·라벨 검색" aria-label="카드 또는 라벨 검색">
+      <div class="seg" id="pf" role="group" aria-label="우선순위 필터">
+        <button type="button" data-p="all" aria-pressed="true">전체</button>
+        <button type="button" data-p="high" aria-pressed="false">높음</button>
+        <button type="button" data-p="mid" aria-pressed="false">보통</button>
+        <button type="button" data-p="low" aria-pressed="false">낮음</button>
+      </div>
+    </div>
+  </header>
+
+  <div id="banner"></div>
+  <nav class="stages" id="stages" aria-label="단계 이동"></nav>
+  <main class="board" id="board" aria-label="콘텐츠 칸반 보드"></main>
+  <section class="perf" id="perf" aria-label="성과"></section>
+  <!--@include src/partials/databar.html-->
+</div>
+
+<!--@include src/boards/content/editor.html-->
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+<!--@js-->

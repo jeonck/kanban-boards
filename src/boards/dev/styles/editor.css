@@ -1,0 +1,14 @@
+/* 편집창: P0~P3 선택, 막힘 체크 */
+.pri-pick{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.pri-pick label{position:relative}
+.pri-pick input{position:absolute;opacity:0;inset:0}
+.pri-pick span{display:grid;justify-items:center;align-content:center;height:46px;border-radius:9px;border:1px solid var(--line);font-family:var(--mono);font-weight:500;font-size:13px;line-height:1.2}
+.pri-pick span small{font-family:var(--sans);font-size:11px;color:var(--muted);font-weight:400}
+.pri-pick .p0{color:var(--p0)}.pri-pick .p1{color:var(--p1)}.pri-pick .p2{color:var(--p2)}.pri-pick .p3{color:var(--p3)}
+.pri-pick input:checked+span.p0{background:var(--p0-bg);border-color:var(--p0)}
+.pri-pick input:checked+span.p1{background:var(--p1-bg);border-color:var(--p1)}
+.pri-pick input:checked+span.p2{background:var(--p2-bg);border-color:var(--p2)}
+.pri-pick input:checked+span.p3{background:var(--p3-bg);border-color:var(--p3)}
+.pri-pick input:focus-visible+span{outline:2px solid var(--accent);outline-offset:2px}
+.chk{display:flex;align-items:center;gap:10px;min-height:38px;font-size:13.5px}
+.chk input{width:18px;height:18px;accent-color:var(--danger)}

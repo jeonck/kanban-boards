@@ -1,0 +1,29 @@
+/* 콘텐츠 보드 색과 글꼴. 공통 CSS가 쓰는 의미 토큰(--danger, --warn, --ok)도 여기서 정한다. */
+:root{
+  --bg:#F2F5F4; --surface:#FFFFFF; --surface-2:#E8EEEC; --fg:#16201D; --muted:#5B6863; --line:#D3DCD9;
+  --accent:#0E7C66; --accent-fg:#FFFFFF; --accent-soft:#D6EEE7;
+  --hi:#B42E2E; --hi-bg:#FBE3E0; --md:#8F5608; --md-bg:#FAEACB; --lo:#25598A; --lo-bg:#DBE9F5;
+  --danger:var(--hi); --danger-bg:var(--hi-bg); --warn:var(--md); --ok:var(--muted);
+  --bar-imp:#B9D5CC; --shadow:rgba(20,40,34,.10); --scrim:rgba(8,14,12,.5); --sheet-w:480px;
+  --lb-s:55%; --lb-bg:90%; --lb-s2:50%; --lb-fg:27%;
+  --sans:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,"SF Mono",Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0E1513; --surface:#18221F; --surface-2:#121A18; --fg:#E5EEEA; --muted:#92A29C; --line:#293733;
+    --accent:#3FC7A5; --accent-fg:#06231C; --accent-soft:#16342C;
+    --hi:#FF8F86; --hi-bg:#3C1F1E; --md:#F0B55E; --md-bg:#3A2D14; --lo:#82BBEB; --lo-bg:#162C3F;
+    --bar-imp:#2B4A41; --shadow:rgba(0,0,0,.45);
+    --lb-s:35%; --lb-bg:22%; --lb-s2:55%; --lb-fg:78%;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0E1513; --surface:#18221F; --surface-2:#121A18; --fg:#E5EEEA; --muted:#92A29C; --line:#293733;
+  --accent:#3FC7A5; --accent-fg:#06231C; --accent-soft:#16342C;
+  --hi:#FF8F86; --hi-bg:#3C1F1E; --md:#F0B55E; --md-bg:#3A2D14; --lo:#82BBEB; --lo-bg:#162C3F;
+  --bar-imp:#2B4A41; --shadow:rgba(0,0,0,.45);
+  --lb-s:35%; --lb-bg:22%; --lb-s2:55%; --lb-fg:78%;
+  color-scheme:dark;
+}

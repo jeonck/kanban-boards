@@ -1,0 +1,23 @@
+<div class="scrim" id="scrim" hidden>
+  <form class="sheet" id="form" role="dialog" aria-modal="true" aria-labelledby="m-head" novalidate>
+    <h2 id="m-head">새 카드</h2>
+    <div class="fld"><label for="f-title">제목</label><input class="f" id="f-title" maxlength="120" autocomplete="off" placeholder="예: 11월 뉴스레터 편집 캘린더"></div>
+    <div class="two">
+      <div class="fld"><label for="f-col">단계</label><select class="f" id="f-col"></select></div>
+      <div class="fld"><label for="f-due">마감일</label><input class="f" id="f-due" type="date"></div>
+    </div>
+    <div class="fld"><span class="lab">우선순위</span>
+      <div class="pri-pick" role="radiogroup" aria-label="우선순위">
+        <label><input type="radio" name="pri" value="high"><span class="high"><i class="lv"><b></b><b></b><b></b></i>높음</span></label>
+        <label><input type="radio" name="pri" value="mid"><span class="mid"><i class="lv"><b></b><b></b><b></b></i>보통</span></label>
+        <label><input type="radio" name="pri" value="low"><span class="low"><i class="lv"><b></b><b></b><b></b></i>낮음</span></label>
+      </div>
+    </div>
+    <!--@include src/partials/labels-field.html-->
+    <div class="two">
+      <div class="fld"><label for="f-imp">노출 수</label><input class="f" id="f-imp" type="number" min="0" inputmode="numeric" placeholder="발행 후 입력"></div>
+      <div class="fld"><label for="f-clk">클릭 수</label><input class="f" id="f-clk" type="number" min="0" inputmode="numeric" placeholder="발행 후 입력"></div>
+    </div>
+    <!--@include src/partials/editor-foot.html-->
+  </form>
+</div>

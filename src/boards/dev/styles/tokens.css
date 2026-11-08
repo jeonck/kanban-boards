@@ -1,0 +1,32 @@
+/* 개발 보드 색과 글꼴. 공통 CSS가 쓰는 의미 토큰(--danger, --warn, --ok)도 여기서 정한다. */
+:root{
+  --bg:#F0F2F7; --surface:#FFFFFF; --surface-2:#E4E8F0; --fg:#0F172A; --muted:#566074; --line:#D2D8E3;
+  --accent:#3454D1; --accent-fg:#FFFFFF; --accent-soft:#DCE3FA;
+  --p0:#B42318; --p0-bg:#FDE3E0; --p1:#B54708; --p1-bg:#FFE7D3; --p2:#7A5A00; --p2-bg:#F7EBC0; --p3:#475467; --p3-bg:#E4E8EF;
+  --c1:#B9C2D3; --c2:#94A3C2; --c3:#6F86D6; --c4:#3454D1; --c5:#2E9D6B;
+  --danger:var(--p0); --danger-bg:var(--p0-bg); --warn:var(--p1); --ok:var(--c5);
+  --shadow:rgba(15,23,42,.12); --scrim:rgba(5,8,14,.55); --sheet-w:520px;
+  --lb-s:55%; --lb-bg:91%; --lb-s2:55%; --lb-fg:28%; --av-l:42%; --av-fg:#FFFFFF;
+  --sans:"Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,"SF Mono",Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0D1117; --surface:#161B22; --surface-2:#10151C; --fg:#E6EDF3; --muted:#8B97A8; --line:#29313D;
+    --accent:#7C9BFF; --accent-fg:#0A1230; --accent-soft:#1B2745;
+    --p0:#FF8A80; --p0-bg:#401D1B; --p1:#FFA766; --p1-bg:#3B2412; --p2:#E9C46A; --p2-bg:#38300F; --p3:#A3AFC2; --p3-bg:#242B36;
+    --c1:#3A4558; --c2:#4F5F7E; --c3:#5B74C4; --c4:#7C9BFF; --c5:#46C08B;
+    --shadow:rgba(0,0,0,.5);
+    --lb-s:35%; --lb-bg:22%; --lb-s2:60%; --lb-fg:80%; --av-l:52%; --av-fg:#0B1020;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0D1117; --surface:#161B22; --surface-2:#10151C; --fg:#E6EDF3; --muted:#8B97A8; --line:#29313D;
+  --accent:#7C9BFF; --accent-fg:#0A1230; --accent-soft:#1B2745;
+  --p0:#FF8A80; --p0-bg:#401D1B; --p1:#FFA766; --p1-bg:#3B2412; --p2:#E9C46A; --p2-bg:#38300F; --p3:#A3AFC2; --p3-bg:#242B36;
+  --c1:#3A4558; --c2:#4F5F7E; --c3:#5B74C4; --c4:#7C9BFF; --c5:#46C08B;
+  --shadow:rgba(0,0,0,.5);
+  --lb-s:35%; --lb-bg:22%; --lb-s2:60%; --lb-fg:80%; --av-l:52%; --av-fg:#0B1020;
+  color-scheme:dark;
+}
